@@ -6,7 +6,9 @@ const user = {
     token: getToken(),
     name: '',
     avatar: '',
-    roles: []
+    roles: [],
+    //默认封面
+    defaule_cover:`${process.env.BASE_API}/img/default_cover.jpg`
   },
 
   mutations: {

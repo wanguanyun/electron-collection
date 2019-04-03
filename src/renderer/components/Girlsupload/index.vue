@@ -10,7 +10,7 @@
                         :fixed-number="option.fixedNumber" :can-move-box="option.canMoveBox"
                         :fixed-box="option.fixedBox" :auto-crop="option.autoCrop"
                         :auto-crop-width="option.autoCropWidth" :auto-crop-height="option.autoCropHeight"
-                        :center-box="option.centerBox" :high="option.high">
+                        :center-box="option.centerBox" :enlarge="2" :high="option.high">
                     </vue-cropper>
                 </div>
                 <div class="btn_cropper">
@@ -77,15 +77,21 @@
 </template>
 
 <script>
+    import {
+        mapGetters
+    } from 'vuex'
     export default {
         name: 'girlsupload',
         created() {
-            this.default_img = `${this.Base_url}/img/default_cover.png`
+            this.default_img = `${this.defaule_cover}`
         },
         computed: {
             Base_url() {
                 return process.env.BASE_API
-            }
+            },
+            ...mapGetters([
+                'defaule_cover'
+            ]),
         },
         data() {
             return {
@@ -116,10 +122,10 @@
                     canMoveBox: true,
                     autoCrop: true,
                     // 只有自动截图开启 宽度高度才生效
-                    autoCropWidth: 440,
-                    autoCropHeight: 660,
+                    autoCropWidth: 220,
+                    autoCropHeight: 330,
                     centerBox: false,
-                    high: true
+                    high: false
                 },
                 addGirlRules: {
                     title: [{
@@ -139,21 +145,26 @@
             //初始化
             init() {
                 this.option.img = ''
-                this.default_img = `${this.Base_url}/img/default_cover.png`
+                this.default_img = `${this.defaule_cover}`
                 this.upload_visible = false
                 this.cropper_visible = false
                 this.$refs.uploads.value = null
             },
             //重置表单
-            handleReset(){
+            handleReset() {
                 this.$refs['addGirlForm'].resetFields()
             },
             //提交
             handleAdd() {
                 this.$refs['addGirlForm'].validate((valid) => {
                     if (valid) {
+                        //1、上传文件
+                        //2、新增一条记录
                         alert('submit!');
-                        
+                        console.log({
+                            ...this.addGirlForm,
+                            img: this.option.img
+                        })
                     } else {
                         console.log('error submit!!');
                         return false;

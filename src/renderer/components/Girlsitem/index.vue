@@ -2,7 +2,7 @@
   <el-col class="girl-item" :xs="12" :sm="6" :md="6" :lg="4" :xl="4">
     <el-card shadow="always" :body-style="{ padding: '0px' }">
       <div class="girl-box">
-        <img :src="Base_url+'/img/'+girlData.img_name" class="girl-image">
+        <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
         <div class="girl-item-count">11</div>
       </div>
@@ -28,16 +28,22 @@
 </template>
 
 <script>
+  import {
+    mapGetters
+  } from 'vuex'
   export default {
     name: 'girlsitem',
     created() {
-
+      console.log(this.defaule_cover)
     },
     props: ['girlData'],
     computed: {
       Base_url() {
         return process.env.BASE_API
-      }
+      },
+      ...mapGetters([
+        'defaule_cover'
+      ]),
     },
     data() {
       return {
