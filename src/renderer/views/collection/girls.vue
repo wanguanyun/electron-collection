@@ -31,10 +31,10 @@
     </el-row>
 
     <el-dialog title="添加小姐姐" @closed="addGirlInit" :visible.sync="dialogVisible" width="60%">
-      <Girlsupload ref="girlsupload"></Girlsupload>
+      <Girlsupload ref="girlsupload" @add-girl-data="handleAdding"></Girlsupload>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="mini" type="primary" @click="handleAdd">新 增</el-button>
+        <el-button size="mini" type="primary" :loading="handleAddingLoading" @click="handleAdd">新 增</el-button>
       </span>
     </el-dialog>
 
@@ -42,10 +42,15 @@
 </template>
 
 <script>
+  import {
+    mapGetters
+  } from 'vuex'
+  import axios from 'axios'
   import Girlsitem from '@/components/Girlsitem/index'
   import Girlsupload from '@/components/Girlsupload/index'
   import {
-    getGirls
+    getGirls,
+    addGirl
   } from '@/api/girl'
 
   export default {
@@ -54,8 +59,18 @@
       Girlsitem,
       Girlsupload
     },
+    computed: {
+      Base_url() {
+        return process.env.BASE_API
+      },
+      ...mapGetters([
+        'token'
+      ]),
+    },
     data() {
       return {
+        //点击添加按钮loading
+        handleAddingLoading: false,
         dialogVisible: false,
         formInline: {
           queryname: '',
@@ -68,14 +83,35 @@
       }
     },
     methods: {
-      // 确认添小姐姐
+      // 确认添小姐姐按钮点击
       handleAdd() {
+        //触发子组件内表单校验以及数据获取方法
         this.$refs.girlsupload.handleAdd()
+      },
+      //表单校验成功调取新增数据api
+      handleAdding(param) {
+        this.handleAddingLoading = true
+        addGirl(param).then(res => {
+          console.log(res)
+          //新增按钮loading结束
+          this.handleAddingLoading = false
+          //关闭弹窗
+          this.dialogVisible = false
+          this.$notify({
+            title: '成功',
+            message: res.data,
+            type: 'success'
+          });
+          //获取列表数据
+          this.fetchData()
+        }).catch(err => {
+          this.handleAddingLoading = false
+        })
       },
       // 新增小姐姐弹窗关闭回调
       addGirlInit() {
         this.$refs.girlsupload.init()
-        this.$refs.girlsupload.handleReset()
+        // this.$refs.girlsupload.handleReset()
       },
       // 检索按钮点击
       handleSearch() {
@@ -215,12 +251,15 @@
       margin-top: 5px;
       border-top: 1px solid #7f6360;
     }
+
     .el-dialog__header {
       border-bottom: 1px solid rgb(127, 99, 96);
     }
+
     .el-dialog__footer {
       border-top: 1px solid rgb(127, 99, 96);
     }
+
     .el-dialog__title {
       color: rgb(127, 99, 96);
     }

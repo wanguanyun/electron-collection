@@ -80,6 +80,7 @@
     import {
         mapGetters
     } from 'vuex'
+    import { uuid } from '@/utils/uuid'
     export default {
         name: 'girlsupload',
         created() {
@@ -99,6 +100,7 @@
                     'rgba(245,108,108,.1)'
                 ],
                 default_img: '',
+                default_img_blob: '',
                 // 上传图片是否展示
                 upload_visible: false,
                 cropper_visible: false,
@@ -149,24 +151,30 @@
                 this.upload_visible = false
                 this.cropper_visible = false
                 this.$refs.uploads.value = null
-            },
-            //重置表单
-            handleReset() {
+                this.addGirlForm.dynamicTags = []
                 this.$refs['addGirlForm'].resetFields()
             },
+            //重置表单
+            // handleReset() {
+            //     this.$refs['addGirlForm'].resetFields()
+            // },
             //提交
             handleAdd() {
                 this.$refs['addGirlForm'].validate((valid) => {
                     if (valid) {
-                        //1、上传文件
-                        //2、新增一条记录
-                        alert('submit!');
+                        var formData = new FormData()
+                        formData.append('title',this.addGirlForm.title)
+                        formData.append('type',this.addGirlForm.type)
+                        formData.append('netAddress',this.addGirlForm.netAddress)
+                        formData.append('localAddress',this.addGirlForm.localAddress)
+                        formData.append('rank',this.addGirlForm.rank)
+                        formData.append('tags',this.addGirlForm.dynamicTags.join(','))
+                        formData.append('imgfile',this.default_img_blob,`${uuid()}.png`)
                         console.log({
-                            ...this.addGirlForm,
-                            img: this.option.img
+                            ...this.addGirlForm
                         })
+                        this.$emit('add-girl-data', formData)
                     } else {
-                        console.log('error submit!!');
                         return false;
                     }
                 });
@@ -202,8 +210,13 @@
             // 确认截图
             confirmCrop() {
                 this.upload_visible = false
+                //预览用
                 this.$refs.cropper.getCropData((data) => {
                     this.default_img = data
+                })
+                //上传用
+                this.$refs.cropper.getCropBlob((data) => {
+                    this.default_img_blob = data
                 })
             },
             // 下载截图图片JPG

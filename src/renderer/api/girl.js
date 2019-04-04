@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+
 export function getGirls(params) {
   return request({
     url: '/girl/main',
@@ -6,5 +7,13 @@ export function getGirls(params) {
     data: {
       ...params
     }
+  })
+}
+
+export function addGirl(params) {
+  return request({
+    url: '/girl/add',
+    method: 'post',
+    data: params
   })
 }

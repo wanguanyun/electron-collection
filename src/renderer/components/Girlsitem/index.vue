@@ -8,7 +8,7 @@
       </div>
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
-          <el-tag v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index" :color="color[index%5]"
+          <el-tag v-if="item" v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index" :color="color[index%5]"
             size="mini" type="info">{{item}}</el-tag>
         </div>
         <div class="mt20 clearfix">
