@@ -154,10 +154,6 @@
                 this.addGirlForm.dynamicTags = []
                 this.$refs['addGirlForm'].resetFields()
             },
-            //重置表单
-            // handleReset() {
-            //     this.$refs['addGirlForm'].resetFields()
-            // },
             //提交
             handleAdd() {
                 this.$refs['addGirlForm'].validate((valid) => {
@@ -170,9 +166,7 @@
                         formData.append('rank',this.addGirlForm.rank)
                         formData.append('tags',this.addGirlForm.dynamicTags.join(','))
                         formData.append('imgfile',this.default_img_blob,`${uuid()}.png`)
-                        console.log({
-                            ...this.addGirlForm
-                        })
+                        //通知父组件可以提交信息了
                         this.$emit('add-girl-data', formData)
                     } else {
                         return false;
