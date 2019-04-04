@@ -25,3 +25,13 @@ export function modifyGirl(params) {
     data: params
   })
 }
+
+export function deleteGirl(params) {
+  return request({
+    url: '/girl/delete',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}

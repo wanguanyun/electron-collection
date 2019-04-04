@@ -60,7 +60,7 @@
                         <el-rate allow-half v-model="addGirlForm.rank" :colors="['#7f6360', '#7f6360', '#7f6360']">
                         </el-rate>
                     </el-form-item>
-                    <el-form-item label="图集标签配置" prop="tags">
+                    <el-form-item class="tag-form-item" label="图集标签配置" prop="tags">
                         <el-tag :color="color[index%5]" :key="index" v-for="(tag,index) in addGirlForm.dynamicTags"
                             closable :disable-transitions="false" size="medium" @close="handleClose(tag)">
                             {{tag}}
@@ -94,7 +94,7 @@
             this.addGirlForm.dynamicTags = this.girlData.gallery_tag?this.girlData.gallery_tag.split(","):[]
             this.addGirlForm.inputVisible = false
             this.addGirlForm.inputValue = ''
-            this.addGirlForm.type = this.girlData.gallery_type?this.girlData.gallery_type:1,
+            this.addGirlForm.type = this.girlData.gallery_type?this.girlData.gallery_type:'',
             this.addGirlForm.netAddress = this.girlData.gallery_net?this.girlData.gallery_net:''
             this.addGirlForm.localAddress = this.girlData.gallery_local?this.girlData.gallery_local:''
             this.addGirlForm.rank = this.girlData.gallery_rank?this.girlData.gallery_rank:0
@@ -316,7 +316,9 @@
         .el-select {
             width: 100%;
         }
-
+        .tag-form-item .el-form-item__content{
+            margin-left: 30px !important;
+        }
         .el-form-item__label {
             font-size: 15px;
         }

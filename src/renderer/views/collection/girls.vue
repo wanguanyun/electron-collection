@@ -21,7 +21,7 @@
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
+      <Girlsitem @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
     </div>
 
     <el-row type="flex" justify="center">
@@ -55,7 +55,8 @@
   import {
     getGirls,
     addGirl,
-    modifyGirl
+    modifyGirl,
+    deleteGirl
   } from '@/api/girl'
 
   export default {
@@ -97,6 +98,20 @@
         this.modifyGirlData = param
         //打开编辑弹窗
         this.dialogVisible = true
+      },
+      deleteGirlbtn(param){
+        console.log(param)
+        deleteGirl(param).then(res => {
+          //关闭弹窗
+          this.$notify({
+            title: '成功',
+            message: res.data,
+            type: 'success'
+          });
+          //获取列表数据
+          this.fetchData()
+        }).catch(err => {
+        })
       },
       // 确认添小姐姐按钮点击
       handleAdd() {

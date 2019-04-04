@@ -19,7 +19,7 @@
           <div class="girl-operate">
             <i @click="modifyGirlItem" class="el-icon-setting"></i>
             <i class="el-icon-download"></i>
-            <i class="el-icon-delete"></i>
+            <i @click="deleteGirlItem" class="el-icon-delete"></i>
           </div>
         </div>
       </div>
@@ -34,7 +34,7 @@
   export default {
     name: 'girlsitem',
     created() {
-      console.log(this.defaule_cover)
+      
     },
     props: ['girlData'],
     computed: {
@@ -57,6 +57,11 @@
       modifyGirlItem(){
         //通知父组件 并传递数据
         this.$emit('modify-girl-data', this.girlData)
+      },
+      //删除小姐姐
+      deleteGirlItem(){
+        //通知父组件
+        this.$emit('delete-girl-data', this.girlData)
       }
     }
   }
