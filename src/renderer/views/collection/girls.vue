@@ -16,12 +16,12 @@
           <el-button type="primary" @click="handleSearch" icon="el-icon-search">GKD</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="dialogVisible=true" icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
+          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'" icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
+      <Girlsitem @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
     </div>
 
     <el-row type="flex" justify="center">
@@ -30,11 +30,15 @@
       </el-pagination>
     </el-row>
 
-    <el-dialog title="添加小姐姐" @closed="addGirlInit" :visible.sync="dialogVisible" width="60%">
-      <Girlsupload ref="girlsupload" @add-girl-data="handleAdding"></Girlsupload>
+    <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
+      <transition name="upload" enter-active-class="animated fadeIn"
+                        leave-active-class="animated fadeOutLeft">
+      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+      </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
-        <el-button size="mini" type="primary" :loading="handleAddingLoading" @click="handleAdd">新 增</el-button>
+        <el-button v-if="addModifyButton=='add'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleAdd">新 增</el-button>
+        <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleModify">修 改</el-button>
       </span>
     </el-dialog>
 
@@ -50,7 +54,8 @@
   import Girlsupload from '@/components/Girlsupload/index'
   import {
     getGirls,
-    addGirl
+    addGirl,
+    modifyGirl
   } from '@/api/girl'
 
   export default {
@@ -71,6 +76,8 @@
       return {
         //点击添加按钮loading
         handleAddingLoading: false,
+        //新增/编辑按钮切换 add/modify
+        addModifyButton:'',
         dialogVisible: false,
         formInline: {
           queryname: '',
@@ -79,16 +86,28 @@
         girlLists: [],
         total: 0,
         currentpage: 1,
-        pagesize: 12
+        pagesize: 12,
+        //需要编辑的Girlsitem数据
+        modifyGirlData:[]
       }
     },
     methods: {
+      modifyGirlbtn(param){
+        this.addModifyButton = 'modify'
+        this.modifyGirlData = param
+        //打开编辑弹窗
+        this.dialogVisible = true
+      },
       // 确认添小姐姐按钮点击
       handleAdd() {
         //触发子组件内表单校验以及数据获取方法
         this.$refs.girlsupload.handleAdd()
       },
-      //表单校验成功调取新增数据api
+      // 确认修改姐姐按钮点击
+      handleModify(){
+         this.$refs.girlsupload.handleModify()
+      },
+      //新增-表单校验成功调取新增数据api
       handleAdding(param) {
         this.handleAddingLoading = true
         addGirl(param).then(res => {
@@ -108,8 +127,30 @@
           this.handleAddingLoading = false
         })
       },
+      //编辑-表单校验成功调取编辑数据api
+      handlemodifying(param){
+        this.handleAddingLoading = true
+        modifyGirl(param).then(res => {
+          console.log(res)
+          //新增按钮loading结束
+          this.handleAddingLoading = false
+          //关闭弹窗
+          this.dialogVisible = false
+          this.$notify({
+            title: '成功',
+            message: res.data,
+            type: 'success'
+          });
+          //获取列表数据
+          this.fetchData()
+        }).catch(err => {
+          this.handleAddingLoading = false
+        })
+      },
       // 新增小姐姐弹窗关闭回调
       addGirlInit() {
+        //清空信息
+        this.modifyGirlData = []
         this.$refs.girlsupload.init()
         // this.$refs.girlsupload.handleReset()
       },

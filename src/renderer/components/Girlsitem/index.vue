@@ -4,7 +4,7 @@
       <div class="girl-box">
         <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
-        <div class="girl-item-count">11</div>
+        <div class="girl-item-count" v-text="girlData.gallery_item_count"></div>
       </div>
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
@@ -17,9 +17,9 @@
             </el-rate>
           </div>
           <div class="girl-operate">
-            <i class="el-icon-setting"></i>
-            <i class="el-icon-news"></i>
+            <i @click="modifyGirlItem" class="el-icon-setting"></i>
             <i class="el-icon-download"></i>
+            <i class="el-icon-delete"></i>
           </div>
         </div>
       </div>
@@ -53,7 +53,11 @@
       }
     },
     methods: {
-
+      //修改小姐姐信息
+      modifyGirlItem(){
+        //通知父组件 并传递数据
+        this.$emit('modify-girl-data', this.girlData)
+      }
     }
   }
 </script>
@@ -71,12 +75,12 @@
       left: 0%;
     }
 
-    .el-icon-news {
+    .el-icon-download {
       transform: translateX(-50%);
       left: 50%;
     }
 
-    .el-icon-download {
+    .el-icon-delete {
       right: 0%;
     }
   }
@@ -152,6 +156,8 @@
         bottom: 90%;
         z-index: 1;
         font-weight: 700;
+        font-size:16px;
+        background-color: rgba(0,0,0,0);
         color: rgb(127, 99, 96);
       }
 
@@ -175,7 +181,9 @@
         position: absolute;
         bottom: 1%;
         left: 3%;
-        font-size: 16px;
+        font-size: 15px;
+        background-color: #7f6360;
+        padding: 0 10px;
         color: rgb(253, 253, 253);
         transition: all 0.3s ease 0s;
       }
@@ -224,7 +232,7 @@
         transform: scale(1.4);
       }
 
-      .el-icon-news:hover {
+      .el-icon-download:hover {
         transform: translateX(-50%) scale(1.4);
       }
 

@@ -17,3 +17,11 @@ export function addGirl(params) {
     data: params
   })
 }
+
+export function modifyGirl(params) {
+  return request({
+    url: '/girl/update',
+    method: 'post',
+    data: params
+  })
+}

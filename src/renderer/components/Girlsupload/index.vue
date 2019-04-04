@@ -45,8 +45,9 @@
                     </el-form-item>
                     <el-form-item label="图集类型配置" prop="type">
                         <el-select v-model="addGirlForm.type" placeholder="请选择">
-                            <el-option label="福利姬" value="1"></el-option>
-                            <el-option label="图集" value="2"></el-option>
+                            <el-option label="福利姬" :value="1"></el-option>
+                            <el-option label="图集" :value="2"></el-option>
+                            <el-option label="COS" :value="3"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="网络地址配置" prop="netAddress">
@@ -80,12 +81,25 @@
     import {
         mapGetters
     } from 'vuex'
-    import { uuid } from '@/utils/uuid'
+    import {
+        uuid
+    } from '@/utils/uuid'
     export default {
         name: 'girlsupload',
         created() {
-            this.default_img = `${this.defaule_cover}`
+            console.log(this.girlData)
+            this.default_img = this.girlData && this.girlData.img_name ?
+                        `${this.Base_url}/img/${this.girlData.img_name}` : `${this.defaule_cover}`
+            this.addGirlForm.title = this.girlData.gallery_name
+            this.addGirlForm.dynamicTags = this.girlData.gallery_tag?this.girlData.gallery_tag.split(","):[]
+            this.addGirlForm.inputVisible = false
+            this.addGirlForm.inputValue = ''
+            this.addGirlForm.type = this.girlData.gallery_type?this.girlData.gallery_type:1,
+            this.addGirlForm.netAddress = this.girlData.gallery_net?this.girlData.gallery_net:''
+            this.addGirlForm.localAddress = this.girlData.gallery_local?this.girlData.gallery_local:''
+            this.addGirlForm.rank = this.girlData.gallery_rank?this.girlData.gallery_rank:0
         },
+        props: ['girlData'],
         computed: {
             Base_url() {
                 return process.env.BASE_API
@@ -148,24 +162,25 @@
             init() {
                 this.option.img = ''
                 this.default_img = `${this.defaule_cover}`
+                this.default_img_blob = ''
                 this.upload_visible = false
                 this.cropper_visible = false
                 this.$refs.uploads.value = null
                 this.addGirlForm.dynamicTags = []
                 this.$refs['addGirlForm'].resetFields()
             },
-            //提交
+            //新增小姐姐 提交
             handleAdd() {
                 this.$refs['addGirlForm'].validate((valid) => {
                     if (valid) {
                         var formData = new FormData()
-                        formData.append('title',this.addGirlForm.title)
-                        formData.append('type',this.addGirlForm.type)
-                        formData.append('netAddress',this.addGirlForm.netAddress)
-                        formData.append('localAddress',this.addGirlForm.localAddress)
-                        formData.append('rank',this.addGirlForm.rank)
-                        formData.append('tags',this.addGirlForm.dynamicTags.join(','))
-                        formData.append('imgfile',this.default_img_blob,`${uuid()}.png`)
+                        formData.append('title', this.addGirlForm.title)
+                        formData.append('type', this.addGirlForm.type)
+                        formData.append('netAddress', this.addGirlForm.netAddress)
+                        formData.append('localAddress', this.addGirlForm.localAddress)
+                        formData.append('rank', this.addGirlForm.rank)
+                        formData.append('tags', this.addGirlForm.dynamicTags.join(','))
+                        formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
                         //通知父组件可以提交信息了
                         this.$emit('add-girl-data', formData)
                     } else {
@@ -173,9 +188,29 @@
                     }
                 });
             },
+            //编辑小姐姐 提交
+            handleModify() {
+                this.$refs['addGirlForm'].validate((valid) => {
+                    if (valid) {
+                        var formData = new FormData()
+                        formData.append('title', this.addGirlForm.title)
+                        formData.append('type', this.addGirlForm.type)
+                        formData.append('netAddress', this.addGirlForm.netAddress)
+                        formData.append('localAddress', this.addGirlForm.localAddress)
+                        formData.append('rank', this.addGirlForm.rank)
+                        formData.append('tags', this.addGirlForm.dynamicTags.join(','))
+                        formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
+                        formData.append('galleryId', this.girlData.gallery_id)
+                        formData.append('imgId', this.girlData.gallery_cover)
+                        //通知父组件可以提交信息了
+                        this.$emit('modify-girl-data', formData)
+                    } else {
+                        return false;
+                    }
+                });
+            },
             uploadImg(e) {
                 // 上传图片
-                // this.option.img
                 var file = e.target.files[0]
                 if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(e.target.value)) {
                     alert('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
