@@ -5,16 +5,21 @@
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img class="user-avatar" :src="Base_url+'/img/user-avatar.gif'">
-        <i class="el-icon-caret-bottom"></i>
+        <!-- <i class="el-icon-caret-bottom"></i> -->
       </div>
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
         <router-link class="inlineBlock" to="/">
-          <el-dropdown-item>
-            Home
+          <el-dropdown-item icon="el-icon-location">
+            主页
           </el-dropdown-item>
         </router-link>
-        <el-dropdown-item divided>
-          <span @click="logout" style="display:block;">LogOut</span>
+        <router-link class="inlineBlock" to="/setting">
+          <el-dropdown-item icon="el-icon-setting">
+            设置
+          </el-dropdown-item>
+        </router-link>
+        <el-dropdown-item>
+          <span @click="logout">登出</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -56,7 +61,6 @@ export default {
   }
 }
 </script>
-
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
   height: 50px;
@@ -78,7 +82,7 @@ export default {
     height: 50px;
     display: inline-block;
     position: absolute;
-    right: 35px;
+    right: 10px;
     .avatar-wrapper {
       cursor: pointer;
       margin-top: 5px;

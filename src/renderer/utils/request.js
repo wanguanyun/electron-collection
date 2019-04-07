@@ -33,9 +33,9 @@ service.interceptors.response.use(
         title: '嗯？咋回事小老弟？',
         dangerouslyUseHTMLString: true,
         message: `<div style="overflow: hidden;margin-left: -30px;"><img style="height: 100px;float: left;
-        display: inline-block;" src="${responseImg}" />
-        <div style="float: right;margin-left: 20px;display: inline-block;height: 100px;line-height: 100px;font-weight: 700;
-        font-size: 16px;color: #e6a23c;">${res.message}</div></div>`
+        display: inline-block;width:40%;" src="${responseImg}" />
+        <div style="float: right;width:52%;margin-left: 20px;display: inline-block;height: 100px;font-weight: 700;
+        font-size: 16px;color: #e6a23c;white-space: normal;word-break: break-all;word-wrap: break-word;">${res.message}</div></div>`
       })
 
       // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
@@ -61,9 +61,9 @@ service.interceptors.response.use(
       title: '嗯？咋回事小老弟？',
       dangerouslyUseHTMLString: true,
       message: `<div style="overflow: hidden;margin-left: -30px;"><img style="height: 100px;float: left;
-        display: inline-block;" src="${responseImg}" />
-        <div style="float: right;margin-left: 20px;display: inline-block;height: 100px;line-height: 100px;font-weight: 700;
-        font-size: 16px;color: #e6a23c;">${error.message}</div></div>`
+        display: inline-block;width:40%;" src="${responseImg}" />
+        <div style="float: right;width:52%;margin-left: 20px;display: inline-block;height: 100px;font-weight: 700;
+        font-size: 16px;color: #e6a23c;white-space: normal;word-break: break-all;word-wrap: break-word;">${error.message}</div></div>`
     })
     return Promise.reject(error)
   }

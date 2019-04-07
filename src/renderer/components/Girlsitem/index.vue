@@ -1,10 +1,16 @@
 <template>
   <el-col class="girl-item" :xs="12" :sm="6" :md="6" :lg="4" :xl="4">
     <el-card shadow="always" :body-style="{ padding: '0px' }">
-      <div class="girl-box">
+      <div class="girl-box" @click="handleGirlitems">
         <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
         <div class="girl-item-count" v-text="girlData.gallery_item_count"></div>
+        <div class="girl-item-list">
+          <ul>
+            <li v-if="item" :key="index" v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
+              {{index+1}}、{{item}}</li>
+          </ul>
+        </div>
       </div>
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
@@ -22,7 +28,7 @@
               <i v-if="girlData.gallery_net" v-clipboard:copy="girlData.gallery_net" v-clipboard:success="onCopy"
                 v-clipboard:error="onError" title="复制链接" class="el-icon-share"></i>
               <i v-if="girlData.gallery_local" @click="openLoaclDir" title="本地文件" class="el-icon-document"></i>
-              <i v-if="girlData.gallery_net || girlData.gallery_local" slot="reference" class="el-icon-download"></i>
+              <i v-show="girlData.gallery_net || girlData.gallery_local" slot="reference" class="el-icon-download"></i>
             </el-popover>
             <i v-if="!girlData.gallery_net && !girlData.gallery_local" class="el-icon-download"></i>
             <i @click="deleteGirlItem" class="el-icon-delete"></i>
@@ -60,6 +66,11 @@
       }
     },
     methods: {
+      //获取小姐姐子项信息列表
+      handleGirlitems(){
+        console.log(this.girlData)
+        this.$router.push({ name: '详情', params: { id:this.girlData.gallery_id }})
+      },
       // 修改小姐姐信息
       modifyGirlItem() {
         // 通知父组件 并传递数据
@@ -71,8 +82,8 @@
         this.$emit('delete-girl-data', this.girlData)
       },
       //打开本地文件夹
-      openLoaclDir(){
-        ipc.send('local-address-open',this.girlData.gallery_local)
+      openLoaclDir() {
+        ipc.send('local-address-open', this.girlData.gallery_local)
       },
       //复制网络地址到剪贴板-成功
       onCopy(e) {
@@ -179,6 +190,28 @@
       transition: all 0.3s ease 0s;
     }
 
+    &-item-list {
+      overflow-y:auto;
+      position: absolute;
+      top: 100%;
+      bottom: 0;
+      color: white;
+      padding: 0 10px;
+      transition: all 0.3s ease 0s;
+      font-size:15px;
+      color: #7f6360;
+      font-weight: 600;
+      cursor: pointer;
+      &::-webkit-scrollbar { width: 0 !important }
+      & ul {
+        list-style: none;
+        padding:0;
+        & li {
+          margin-bottom: 5px;
+        }
+      }
+    }
+
     &-box:before {
       content: "";
       width: 150%;
@@ -219,6 +252,10 @@
 
       .girl-item-count {
         bottom: 90%;
+        z-index: 1;
+      }
+      .girl-item-list {
+        top:30px;
         z-index: 1;
       }
     }

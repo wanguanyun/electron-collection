@@ -138,7 +138,7 @@
         },
         option: {
           img: '',
-          size: 1,
+          size: 0.5,
           fixedNumber: [2, 3],
           outputType: 'jpeg',
           canMove: true,

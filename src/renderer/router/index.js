@@ -24,11 +24,6 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-  // {
-  //   path: '/',
-  //   redirect: '/dashboard/welcome',
-  //   hidden: true,
-  // },
   {
     path: '/',
     component: Layout,
@@ -84,6 +79,20 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/girlsitem',
+    component: Layout,
+    hidden: true,
+    redirect: '/girlsitem/index',
+    children: [
+      {
+        path: 'index/:id',
+        name: '详情',
+        component: () => import('@/views/collection/girlitems'),
+        meta: { title: '详情', icon: 'archives' }
+      }
+    ]
+  },
+  {
     path: '/archives',
     component: Layout,
     children: [
@@ -104,6 +113,20 @@ export const constantRouterMap = [
         name: '回收站',
         component: () => import('@/views/favourite/index'),
         meta: { title: '回收站', icon: 'recycle' }
+      }
+    ]
+  },
+  {
+    path: '/setting',
+    hidden: true,
+    redirect: '/setting/index',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: '设置',
+        component: () => import('@/views/favourite/index'),
+        meta: { title: '设置', icon: 'recycle' }
       }
     ]
   },

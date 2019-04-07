@@ -10,6 +10,16 @@ export function getGirls(params) {
   })
 }
 
+export function getGirlitems(params) {
+  return request({
+    url: '/girl/main/items',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
 export function addGirl(params) {
   return request({
     url: '/girl/add',
