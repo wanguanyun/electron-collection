@@ -7,8 +7,8 @@ const user = {
     name: '',
     avatar: '',
     roles: [],
-    //默认封面
-    defaule_cover:`${process.env.BASE_API}/img/default_cover.jpg`
+    // 默认封面
+    defaule_cover: `${process.env.BASE_API}/img/default_cover.jpg`
   },
 
   mutations: {

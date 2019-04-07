@@ -8,8 +8,8 @@
       </div>
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
-          <el-tag v-if="item" v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index" :color="color[index%5]"
-            size="mini" type="info">{{item}}</el-tag>
+          <el-tag v-if="item" v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index"
+            :color="color[index%5]" size="mini" type="info">{{item}}</el-tag>
         </div>
         <div class="mt20 clearfix">
           <div class="girl-rank clearfix">
@@ -18,7 +18,13 @@
           </div>
           <div class="girl-operate">
             <i @click="modifyGirlItem" class="el-icon-setting"></i>
-            <i class="el-icon-download"></i>
+            <el-popover placement="top" :visible-arrow="false" width="80" trigger="hover">
+              <i v-if="girlData.gallery_net" v-clipboard:copy="girlData.gallery_net" v-clipboard:success="onCopy"
+                v-clipboard:error="onError" title="复制链接" class="el-icon-share"></i>
+              <i v-if="girlData.gallery_local" @click="openLoaclDir" title="本地文件" class="el-icon-document"></i>
+              <i v-if="girlData.gallery_net || girlData.gallery_local" slot="reference" class="el-icon-download"></i>
+            </el-popover>
+            <i v-if="!girlData.gallery_net && !girlData.gallery_local" class="el-icon-download"></i>
             <i @click="deleteGirlItem" class="el-icon-delete"></i>
           </div>
         </div>
@@ -31,10 +37,11 @@
   import {
     mapGetters
   } from 'vuex'
+  const ipc = require('electron').ipcRenderer
   export default {
     name: 'girlsitem',
     created() {
-      
+
     },
     props: ['girlData'],
     computed: {
@@ -43,7 +50,7 @@
       },
       ...mapGetters([
         'defaule_cover'
-      ]),
+      ])
     },
     data() {
       return {
@@ -53,20 +60,59 @@
       }
     },
     methods: {
-      //修改小姐姐信息
-      modifyGirlItem(){
-        //通知父组件 并传递数据
+      // 修改小姐姐信息
+      modifyGirlItem() {
+        // 通知父组件 并传递数据
         this.$emit('modify-girl-data', this.girlData)
       },
-      //删除小姐姐
-      deleteGirlItem(){
-        //通知父组件
+      // 删除小姐姐
+      deleteGirlItem() {
+        // 通知父组件
         this.$emit('delete-girl-data', this.girlData)
+      },
+      //打开本地文件夹
+      openLoaclDir(){
+        ipc.send('local-address-open',this.girlData.gallery_local)
+      },
+      //复制网络地址到剪贴板-成功
+      onCopy(e) {
+        this.$notify({
+          title: '成功',
+          message: '已复制网络地址到剪贴板',
+          type: 'success'
+        })
+      },
+      //复制网络地址到剪贴板-失败
+      onError(e) {
+        this.$notify({
+          title: '失败',
+          message: '复制失败',
+          type: 'warning'
+        })
       }
     }
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .el-popover {
+    min-width: 80px;
+    text-align: center;
+
+    i {
+      cursor: pointer;
+      font-size: 20px;
+      transition: transform 0.3s ease 0s;
+
+      &:hover {
+        transform: scale(1.4);
+      }
+    }
+
+    .el-icon-share {
+      margin-right: 10px;
+    }
+  }
+
   .girl-item {
     .el-rate__icon {
       margin-right: 0px;
@@ -91,6 +137,11 @@
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
+  * {
+    //禁止用户选中
+    -webkit-user-select: none !important;
+  }
+
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -161,8 +212,8 @@
         bottom: 90%;
         z-index: 1;
         font-weight: 700;
-        font-size:16px;
-        background-color: rgba(0,0,0,0);
+        font-size: 16px;
+        background-color: rgba(0, 0, 0, 0);
         color: rgb(127, 99, 96);
       }
 

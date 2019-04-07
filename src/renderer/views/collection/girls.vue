@@ -46,10 +46,6 @@
 </template>
 
 <script>
-  import {
-    mapGetters
-  } from 'vuex'
-  import axios from 'axios'
   import Girlsitem from '@/components/Girlsitem/index'
   import Girlsupload from '@/components/Girlsupload/index'
   import {
@@ -65,20 +61,20 @@
       Girlsitem,
       Girlsupload
     },
+    created() {
+      this.fetchData()
+    },
     computed: {
       Base_url() {
         return process.env.BASE_API
-      },
-      ...mapGetters([
-        'token'
-      ]),
+      }
     },
     data() {
       return {
-        //点击添加按钮loading
+        // 点击添加按钮loading
         handleAddingLoading: false,
-        //新增/编辑按钮切换 add/modify
-        addModifyButton:'',
+        // 新增/编辑按钮切换 add/modify
+        addModifyButton: '',
         dialogVisible: false,
         formInline: {
           queryname: '',
@@ -88,83 +84,88 @@
         total: 0,
         currentpage: 1,
         pagesize: 12,
-        //需要编辑的Girlsitem数据
-        modifyGirlData:[]
+        // 需要编辑的Girlsitem数据
+        modifyGirlData: []
       }
     },
     methods: {
-      modifyGirlbtn(param){
+      modifyGirlbtn(param) {
         this.addModifyButton = 'modify'
         this.modifyGirlData = param
-        //打开编辑弹窗
+        // 打开编辑弹窗
         this.dialogVisible = true
       },
-      deleteGirlbtn(param){
-        console.log(param)
-        deleteGirl(param).then(res => {
-          //关闭弹窗
-          this.$notify({
-            title: '成功',
-            message: res.data,
-            type: 'success'
-          });
-          //获取列表数据
-          this.fetchData()
-        }).catch(err => {
+      deleteGirlbtn(param) {
+        this.$confirm('是否确定删除(将删除包括所有子项), 是否继续?', '嗯???', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          deleteGirl(param).then(res => {
+          // 关闭弹窗
+            this.$notify({
+              title: '成功',
+              message: res.data,
+              type: 'success'
+            })
+            // 获取列表数据
+            this.fetchData()
+          })
+        }).catch(() => {
         })
       },
       // 确认添小姐姐按钮点击
       handleAdd() {
-        //触发子组件内表单校验以及数据获取方法
+        // 触发子组件内表单校验以及数据获取方法
         this.$refs.girlsupload.handleAdd()
       },
       // 确认修改姐姐按钮点击
-      handleModify(){
-         this.$refs.girlsupload.handleModify()
+      handleModify() {
+        this.$refs.girlsupload.handleModify()
       },
-      //新增-表单校验成功调取新增数据api
+      // 新增-表单校验成功调取新增数据api
       handleAdding(param) {
         this.handleAddingLoading = true
         addGirl(param).then(res => {
           console.log(res)
-          //新增按钮loading结束
+          // 新增按钮loading结束
           this.handleAddingLoading = false
-          //关闭弹窗
+          // 关闭弹窗
           this.dialogVisible = false
           this.$notify({
             title: '成功',
             message: res.data,
             type: 'success'
-          });
-          //获取列表数据
+          })
+          // 获取列表数据
           this.fetchData()
-        }).catch(err => {
+        }).catch(() => {
           this.handleAddingLoading = false
         })
       },
-      //编辑-表单校验成功调取编辑数据api
-      handlemodifying(param){
+      // 编辑-表单校验成功调取编辑数据api
+      handlemodifying(param) {
         this.handleAddingLoading = true
         modifyGirl(param).then(res => {
           console.log(res)
-          //新增按钮loading结束
+          // 新增按钮loading结束
           this.handleAddingLoading = false
-          //关闭弹窗
+          // 关闭弹窗
           this.dialogVisible = false
           this.$notify({
             title: '成功',
             message: res.data,
             type: 'success'
-          });
-          //获取列表数据
+          })
+          // 获取列表数据
           this.fetchData()
-        }).catch(err => {
+        }).catch(() => {
           this.handleAddingLoading = false
         })
       },
       // 新增小姐姐弹窗关闭回调
       addGirlInit() {
-        //清空信息
+        // 清空信息
         this.modifyGirlData = []
         this.$refs.girlsupload.init()
         // this.$refs.girlsupload.handleReset()
@@ -191,7 +192,7 @@
           ...this.formInline,
           currentpage: this.currentpage,
           pagesize: this.pagesize,
-          gallerytype: '1'
+          gallerytype: '1'// 福利姬
         }).then(res => {
           loading.close()
           console.log(res)
@@ -201,9 +202,6 @@
           }
         })
       }
-    },
-    created() {
-      this.fetchData()
     }
   }
 </script>
@@ -249,21 +247,8 @@
       }
     }
 
-    .el-button--primary:before,
-    .el-button--primary:after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 2px;
-      width: 0;
-      background: rgb(127, 99, 96);
-      ;
-      transition: 400ms ease all;
-    }
-
-    .el-button--info:before,
-    .el-button--info:after {
+    .el-button:before,
+    .el-button:after {
       content: '';
       position: absolute;
       top: 0;
@@ -322,6 +307,8 @@
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
+
+
   .clearfix:before,
   .clearfix:after {
     display: table;

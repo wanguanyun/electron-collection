@@ -54,6 +54,9 @@ app.on('activate', () => {
 
 const electron = require('electron')
 const ipc = electron.ipcMain
+const dialog = require('electron').dialog
+const shell = require('electron').shell;
+// var fs = require('fs')
 
 ipc.on('close-app', () => {
   if (mainWindow) {
@@ -65,6 +68,25 @@ ipc.on('max-app', () => {
 })
 ipc.on('min-app', () => {
   mainWindow.minimize()
+})
+
+ipc.on('local-address-config', (event, arg) => {
+  dialog.showOpenDialog({
+    properties: ['openDirectory']
+  },(filePath) => {
+    // fileNames is an array that contains all the selected
+    if(!filePath || filePath === undefined){
+        console.log("No file selected");
+        return;
+    }
+    console.log(filePath)
+    event.sender.send('local-address-config-reply', filePath);
+});
+})
+
+ipc.on('local-address-open', (event, arg) => {
+  console.log(arg)
+  shell.openItem(arg)
 })
 
 /**
