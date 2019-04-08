@@ -4,8 +4,8 @@
       <div class="girl-box" @click="handleGirlitems">
         <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
-        <div class="girl-item-count" v-text="girlData.gallery_item_count"></div>
-        <div class="girl-item-list">
+        <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
+        <div v-if="girlDataType === 1" class="girl-item-list">
           <ul>
             <li v-if="item" :key="index" v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
               {{index+1}}、{{item}}</li>
@@ -15,7 +15,7 @@
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
           <el-tag v-if="item" v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index"
-            :color="color[index%5]" size="mini" type="info">{{item}}</el-tag>
+            :color="color[index%5]" @click="handleTagSearch(item)" size="mini" type="info">{{item}}</el-tag>
         </div>
         <div class="mt20 clearfix">
           <div class="girl-rank clearfix">
@@ -47,9 +47,10 @@
   export default {
     name: 'girlsitem',
     created() {
-
+      console.log(this.girlData)
     },
-    props: ['girlData'],
+    //girlDataType  1:大类 2:小类
+    props: ['girlData','girlDataType'],
     computed: {
       Base_url() {
         return process.env.BASE_API
@@ -69,7 +70,14 @@
       //获取小姐姐子项信息列表
       handleGirlitems(){
         console.log(this.girlData)
-        this.$router.push({ name: '详情', params: { id:this.girlData.gallery_id }})
+        if(this.girlDataType === 1){
+          this.$router.push({ name: '详情', params: { id:this.girlData.gallery_id }})
+        }
+        return
+      },
+      //点击tag标签搜索
+      handleTagSearch(tag){
+        this.$emit('tag-search', tag)
       },
       // 修改小姐姐信息
       modifyGirlItem() {

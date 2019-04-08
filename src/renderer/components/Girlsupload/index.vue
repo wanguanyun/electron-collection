@@ -40,7 +40,7 @@
           <el-form-item label="图集标题配置" prop="title">
             <el-input v-model="addGirlForm.title" clearable auto-complete="off"></el-input>
           </el-form-item>
-          <el-form-item label="图集类型配置" prop="type">
+          <el-form-item v-if="girlDataType === 1" label="图集类型配置" prop="type">
             <el-select v-model="addGirlForm.type" placeholder="请选择">
               <el-option label="福利姬" :value="1"></el-option>
               <el-option label="图集" :value="2"></el-option>
@@ -107,7 +107,7 @@
         });
       });
     },
-    props: ['girlData'],
+    props: ['girlData','girlDataType'],
     computed: {
       Base_url() {
         return process.env.BASE_API
@@ -182,7 +182,7 @@
         ipc.send('local-address-config')
       },
       // 新增小姐姐 提交
-      handleAdd() {
+      handleAdd(galleryId) {
         this.$refs['addGirlForm'].validate((valid) => {
           if (valid) {
             var formData = new FormData()
@@ -193,6 +193,10 @@
             formData.append('rank', this.addGirlForm.rank)
             formData.append('tags', this.addGirlForm.dynamicTags.join(','))
             formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
+            if(this.girlDataType === 2){
+              //小类新增
+              formData.append('galleryId',galleryId)
+            }
             // 通知父组件可以提交信息了
             this.$emit('add-girl-data', formData)
           } else {
@@ -212,7 +216,13 @@
             formData.append('rank', this.addGirlForm.rank)
             formData.append('tags', this.addGirlForm.dynamicTags.join(','))
             formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
-            formData.append('galleryId', this.girlData.gallery_id)
+            if(this.girlDataType === 1){
+              //大类修改
+              formData.append('galleryId',this.girlData.gallery_id)
+            }else if(this.girlDataType === 2){
+              //小类修改
+              formData.append('galleryId',this.girlData.gallery_item_id)
+            }
             formData.append('imgId', this.girlData.gallery_cover)
             // 通知父组件可以提交信息了
             this.$emit('modify-girl-data', formData)
@@ -309,7 +319,7 @@
     }
 
     .el-input__inner,.el-textarea__inner {
-      width: 100%;
+      width: 100% !important;
       border-top: 0;
       border-left: 0;
       border-right: 0;

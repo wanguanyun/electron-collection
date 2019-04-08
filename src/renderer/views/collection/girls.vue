@@ -3,7 +3,7 @@
     <el-row type="flex" justify="left">
       <el-form :inline="true" :model="formInline" size="mini">
         <el-form-item label="检索">
-          <el-input v-model="formInline.queryname" placeholder="标题 / 标签"></el-input>
+          <el-input v-model="formInline.queryname" clearable placeholder="标题 / 标签"></el-input>
         </el-form-item>
         <el-form-item label="展示排序">
           <el-select v-model="formInline.querysort" placeholder="展示排序">
@@ -21,7 +21,7 @@
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
+      <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="1"></Girlsitem>
     </div>
 
     <el-row type="flex" justify="center">
@@ -33,7 +33,7 @@
     <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
       <transition name="upload" enter-active-class="animated fadeIn"
                         leave-active-class="animated fadeOutLeft">
-      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="1" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
       </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
@@ -172,6 +172,11 @@
       },
       // 检索按钮点击
       handleSearch() {
+        this.fetchData()
+      },
+      //点击标签检索
+      handleTagSearch(tag){
+        this.formInline.queryname = tag
         this.fetchData()
       },
       // 分页切换事件

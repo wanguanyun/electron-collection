@@ -1,9 +1,12 @@
 <template>
-  <div class="girls-container">
+  <div class="girls-item-container">
     <el-row type="flex" justify="left">
       <el-form :inline="true" :model="formInline" size="mini">
+        <el-form-item>
+          <el-button type="warning" @click="goback" icon="el-icon-back"></el-button>
+        </el-form-item>
         <el-form-item label="检索">
-          <el-input v-model="formInline.queryname" placeholder="标题 / 标签"></el-input>
+          <el-input v-model="formInline.queryname" clearable placeholder="标题 / 标签"></el-input>
         </el-form-item>
         <el-form-item label="展示排序">
           <el-select v-model="formInline.querysort" placeholder="展示排序">
@@ -21,7 +24,7 @@
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"></Girlsitem>
+      <Girlsitem @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
     </div>
 
     <el-row type="flex" justify="center">
@@ -30,10 +33,10 @@
       </el-pagination>
     </el-row>
 
-    <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
+    <el-dialog :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
       <transition name="upload" enter-active-class="animated fadeIn"
                         leave-active-class="animated fadeOutLeft">
-      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="2" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
       </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
@@ -50,9 +53,9 @@
   import Girlsupload from '@/components/Girlsupload/index'
   import {
     getGirlitems,
-    addGirl,
-    modifyGirl,
-    deleteGirl
+    addGirlitem,
+    modifyGirlitem,
+    deleteGirlitem
   } from '@/api/girl'
 
   export default {
@@ -62,7 +65,6 @@
       Girlsupload
     },
     created() {
-        console.log(this.$route.params.id)
       this.fetchData()
     },
     computed: {
@@ -97,12 +99,12 @@
         this.dialogVisible = true
       },
       deleteGirlbtn(param) {
-        this.$confirm('是否确定删除(将删除包括所有子项), 是否继续?', '嗯???', {
+        this.$confirm('是否确定删除, 是否继续?', '嗯???', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteGirl(param).then(res => {
+          deleteGirlitem(param).then(res => {
           // 关闭弹窗
             this.$notify({
               title: '成功',
@@ -118,7 +120,7 @@
       // 确认添小姐姐按钮点击
       handleAdd() {
         // 触发子组件内表单校验以及数据获取方法
-        this.$refs.girlsupload.handleAdd()
+        this.$refs.girlsupload.handleAdd(this.$route.params.id)
       },
       // 确认修改姐姐按钮点击
       handleModify() {
@@ -127,7 +129,7 @@
       // 新增-表单校验成功调取新增数据api
       handleAdding(param) {
         this.handleAddingLoading = true
-        addGirl(param).then(res => {
+        addGirlitem(param).then(res => {
           console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
@@ -147,7 +149,7 @@
       // 编辑-表单校验成功调取编辑数据api
       handlemodifying(param) {
         this.handleAddingLoading = true
-        modifyGirl(param).then(res => {
+        modifyGirlitem(param).then(res => {
           console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
@@ -170,6 +172,10 @@
         this.modifyGirlData = []
         this.$refs.girlsupload.init()
         // this.$refs.girlsupload.handleReset()
+      },
+      //返回上一级
+      goback(){
+        this.$router.back()
       },
       // 检索按钮点击
       handleSearch() {
@@ -199,7 +205,25 @@
           console.log(res)
           if (res.code === 200) {
             this.total = res.data.total
-            this.girlLists = res.data.rows
+            this.girlLists = res.data.rows.map(item => {
+              return {
+                create_time:item.create_time,
+                gallery_id:item.gallery_id,
+                gallery_item_id:item.gallery_item_id,
+                gallery_cover:item.gallery_item_cover,
+                gallery_del_flag:item.gallery_item_del_flag,
+                gallery_detail:item.gallery_item_detail,
+                gallery_local:item.gallery_item_local,
+                gallery_name:item.gallery_item_name,
+                gallery_net:item.gallery_item_net,
+                gallery_rank:item.gallery_item_rank,
+                gallery_tag:item.gallery_item_tag,
+                img_detail:item.img_detail,
+                img_id:item.img_id,
+                img_name:item.img_name,
+                img_size:item.img_size,
+              }
+            })
           }
         })
       }
@@ -207,7 +231,7 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-  .girls-container {
+  .girls-item-container {
     .el-input__inner {
       width: 150px;
       border-top: 0;
@@ -321,7 +345,7 @@
   }
 
   .girls {
-    &-container {
+    &-item-container {
       padding: 20px;
     }
 

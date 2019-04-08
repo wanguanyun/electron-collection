@@ -28,6 +28,14 @@ export function addGirl(params) {
   })
 }
 
+export function addGirlitem(params) {
+  return request({
+    url: '/girl/add/item',
+    method: 'post',
+    data: params
+  })
+}
+
 export function modifyGirl(params) {
   return request({
     url: '/girl/update',
@@ -36,9 +44,27 @@ export function modifyGirl(params) {
   })
 }
 
+export function modifyGirlitem(params) {
+  return request({
+    url: '/girl/update/item',
+    method: 'post',
+    data: params
+  })
+}
+
 export function deleteGirl(params) {
   return request({
     url: '/girl/delete',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
+export function deleteGirlitem(params) {
+  return request({
+    url: '/girl/delete/item',
     method: 'post',
     data: {
       ...params
