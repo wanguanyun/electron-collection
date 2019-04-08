@@ -19,7 +19,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "electron-vue-admin",
+    "productName": "学习强国",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
@@ -48,10 +48,10 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/my.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/my.ico"
     },
     "linux": {
       "icon": "build/icons"
