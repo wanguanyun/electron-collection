@@ -221,7 +221,8 @@
               formData.append('galleryId',this.girlData.gallery_id)
             }else if(this.girlDataType === 2){
               //小类修改
-              formData.append('galleryId',this.girlData.gallery_item_id)
+              formData.append('galleryId',this.girlData.gallery_id)
+              formData.append('galleryItemId',this.girlData.gallery_item_id)
             }
             formData.append('imgId', this.girlData.gallery_cover)
             // 通知父组件可以提交信息了
@@ -333,7 +334,7 @@
     }
 
     .input-new-tag .el-input__inner {
-      width: 130px;
+      width: 130px !important;
     }
 
     .el-select {

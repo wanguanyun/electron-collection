@@ -3,7 +3,7 @@
     <el-row type="flex" justify="left">
       <el-form :inline="true" :model="formInline" size="mini">
         <el-form-item>
-          <el-button type="warning" @click="goback" icon="el-icon-back"></el-button>
+          <el-button type="warning" @click="goback" icon="el-icon-back">{{girlInfo.gallery_name}}</el-button>
         </el-form-item>
         <el-form-item label="检索">
           <el-input v-model="formInline.queryname" clearable placeholder="标题 / 标签"></el-input>
@@ -19,12 +19,14 @@
           <el-button type="primary" @click="handleSearch" icon="el-icon-search">GKD</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'" icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
+          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'"
+            icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
+      <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
+        v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
     </div>
 
     <el-row type="flex" justify="center">
@@ -33,15 +35,18 @@
       </el-pagination>
     </el-row>
 
-    <el-dialog :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
-      <transition name="upload" enter-active-class="animated fadeIn"
-                        leave-active-class="animated fadeOutLeft">
-      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="2" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+    <el-dialog :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit" :visible.sync="dialogVisible"
+      width="60%">
+      <transition name="upload" enter-active-class="animated fadeIn" leave-active-class="animated fadeOutLeft">
+        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="2" ref="girlsupload"
+          @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
       </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
-        <el-button v-if="addModifyButton=='add'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleAdd">新 增</el-button>
-        <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleModify">修 改</el-button>
+        <el-button v-if="addModifyButton=='add'" size="mini" type="primary" :loading="handleAddingLoading"
+          @click="handleAdd">新 增</el-button>
+        <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading"
+          @click="handleModify">修 改</el-button>
       </span>
     </el-dialog>
 
@@ -49,6 +54,7 @@
 </template>
 
 <script>
+  import { mapGetters } from 'vuex'
   import Girlsitem from '@/components/Girlsitem/index'
   import Girlsupload from '@/components/Girlsupload/index'
   import {
@@ -65,12 +71,20 @@
       Girlsupload
     },
     created() {
+      //获取图集大类信息
+      this.$store.dispatch('GetGirlInfo', {
+          galleryId: this.$route.params.id
+        })
       this.fetchData()
     },
     computed: {
       Base_url() {
         return process.env.BASE_API
-      }
+      },
+      //获取图集大类信息
+      ...mapGetters([
+        'girlInfo'
+      ])
     },
     data() {
       return {
@@ -105,7 +119,7 @@
           type: 'warning'
         }).then(() => {
           deleteGirlitem(param).then(res => {
-          // 关闭弹窗
+            // 关闭弹窗
             this.$notify({
               title: '成功',
               message: res.data,
@@ -114,8 +128,7 @@
             // 获取列表数据
             this.fetchData()
           })
-        }).catch(() => {
-        })
+        }).catch(() => {})
       },
       // 确认添小姐姐按钮点击
       handleAdd() {
@@ -174,8 +187,13 @@
         // this.$refs.girlsupload.handleReset()
       },
       //返回上一级
-      goback(){
+      goback() {
         this.$router.back()
+      },
+      //点击标签检索
+      handleTagSearch(tag) {
+        this.formInline.queryname = tag
+        this.fetchData()
       },
       // 检索按钮点击
       handleSearch() {
@@ -199,7 +217,7 @@
           ...this.formInline,
           currentpage: this.currentpage,
           pagesize: this.pagesize,
-          galleryId:this.$route.params.id
+          galleryId: this.$route.params.id
         }).then(res => {
           loading.close()
           console.log(res)
@@ -207,21 +225,21 @@
             this.total = res.data.total
             this.girlLists = res.data.rows.map(item => {
               return {
-                create_time:item.create_time,
-                gallery_id:item.gallery_id,
-                gallery_item_id:item.gallery_item_id,
-                gallery_cover:item.gallery_item_cover,
-                gallery_del_flag:item.gallery_item_del_flag,
-                gallery_detail:item.gallery_item_detail,
-                gallery_local:item.gallery_item_local,
-                gallery_name:item.gallery_item_name,
-                gallery_net:item.gallery_item_net,
-                gallery_rank:item.gallery_item_rank,
-                gallery_tag:item.gallery_item_tag,
-                img_detail:item.img_detail,
-                img_id:item.img_id,
-                img_name:item.img_name,
-                img_size:item.img_size,
+                create_time: item.create_time,
+                gallery_id: item.gallery_id,
+                gallery_item_id: item.gallery_item_id,
+                gallery_cover: item.gallery_item_cover,
+                gallery_del_flag: item.gallery_item_del_flag,
+                gallery_detail: item.gallery_item_detail,
+                gallery_local: item.gallery_item_local,
+                gallery_name: item.gallery_item_name,
+                gallery_net: item.gallery_item_net,
+                gallery_rank: item.gallery_item_rank,
+                gallery_tag: item.gallery_item_tag,
+                img_detail: item.img_detail,
+                img_id: item.img_id,
+                img_name: item.img_name,
+                img_size: item.img_size,
               }
             })
           }
@@ -332,8 +350,6 @@
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-
-
   .clearfix:before,
   .clearfix:after {
     display: table;

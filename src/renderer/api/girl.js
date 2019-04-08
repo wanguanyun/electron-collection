@@ -1,5 +1,15 @@
 import request from '@/utils/request'
 
+export function getGirlInfo(params) {
+  return request({
+    url: '/girl/info',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
 export function getGirls(params) {
   return request({
     url: '/girl/main',

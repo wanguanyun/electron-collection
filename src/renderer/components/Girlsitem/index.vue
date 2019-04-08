@@ -47,7 +47,6 @@
   export default {
     name: 'girlsitem',
     created() {
-      console.log(this.girlData)
     },
     //girlDataType  1:大类 2:小类
     props: ['girlData','girlDataType'],
@@ -69,7 +68,6 @@
     methods: {
       //获取小姐姐子项信息列表
       handleGirlitems(){
-        console.log(this.girlData)
         if(this.girlDataType === 1){
           this.$router.push({ name: '详情', params: { id:this.girlData.gallery_id }})
         }
