@@ -1,14 +1,14 @@
 import { getGirlInfo } from '@/api/girl'
 const setting = {
   state: {
-    //用于获取大类信息
-    girlInfo:{}
+    // 用于获取大类信息
+    girlInfo: {}
   },
 
   mutations: {
     SET_GIRLINFO: (state, girlInfo) => {
       state.girlInfo = girlInfo
-    },
+    }
   },
 
   actions: {
@@ -21,7 +21,7 @@ const setting = {
           reject(error)
         })
       })
-    },
+    }
   }
 }
 

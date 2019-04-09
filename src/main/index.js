@@ -3,6 +3,15 @@ import {
   BrowserWindow
 } from 'electron'
 
+const electron = require('electron')
+const ipc = electron.ipcMain
+const path = require('path')
+const dialog = require('electron').dialog
+const shell = require('electron').shell
+const Menu = require('electron').Menu
+const Tray = require('electron').Tray
+const nativeImage = require('electron').nativeImage
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -11,12 +20,12 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-//托盘对象
-let appTray = null;
+// 托盘对象
+let appTray = null
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development' ?
-  `http://localhost:9080` :
-  `file://${__dirname}/index.html`
+const winURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080`
+  : `file://${__dirname}/index.html`
 
 function createWindow() {
   /**
@@ -35,61 +44,61 @@ function createWindow() {
     x: 0,
     y: 0
   })
-  //系统托盘右键菜单
+  // 系统托盘右键菜单
   var trayMenuTemplate = [{
-      label: '设置',
-      click: function () {} //打开相应页面
-    },
-    {
-      label: '帮助',
-      click: function () {}
-    },
-    {
-      label: '关于',
-      click: function () {}
-    },
-    {
-      label: '退出',
-      click: function () {
-        app.quit();
-        app.quit(); //因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
-      }
+    label: '设置',
+    click: function() {} // 打开相应页面
+  },
+  {
+    label: '帮助',
+    click: function() {}
+  },
+  {
+    label: '关于',
+    click: function() {}
+  },
+  {
+    label: '退出',
+    click: function() {
+      app.quit()
+      app.quit() // 因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
     }
+  }
   ]
-  //系统托盘图标目录
-  let trayIcon = path.join(__dirname, '../../build/icons'); //app是选取的目录
+  // 系统托盘图标目录
+  const trayIcon = path.join(__dirname, '../../build/icons/my.png') // app是选取的目录
+  console.log(trayIcon)
+  let tIcon = nativeImage.createFromPath(trayIcon)
+  tIcon = tIcon.resize({ width: 32, height: 32 })
+  appTray = new Tray(tIcon) // app.ico是app目录下的ico文件
 
-  appTray = new Tray(path.join(trayIcon, 'my.ico')); //app.ico是app目录下的ico文件
+  // 图标的上下文菜单
+  const contextMenu = Menu.buildFromTemplate(trayMenuTemplate)
 
-  //图标的上下文菜单
-  const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  // 设置此托盘图标的悬停提示内容
+  appTray.setToolTip('学习强国')
 
-  //设置此托盘图标的悬停提示内容
-  appTray.setToolTip('我的托盘图标');
-
-  //设置此图标的上下文菜单
-  appTray.setContextMenu(contextMenu);
-  //单击右下角小图标显示应用
-  appTray.on('click', function () {
-    mainWindow.show();
+  // 设置此图标的上下文菜单
+  appTray.setContextMenu(contextMenu)
+  // 单击右下角小图标显示应用
+  appTray.on('click', function() {
+    mainWindow.show()
   })
-
 
   mainWindow.loadURL(winURL)
 
   mainWindow.on('close', (e) => {
-    //回收BrowserWindow对象
+    // 回收BrowserWindow对象
     if (mainWindow.isMinimized()) {
-      mainWindow = null;
+      mainWindow = null
     } else {
-      e.preventDefault();
-      mainWindow.minimize();
+      e.preventDefault()
+      mainWindow.minimize()
     }
-  });
+  })
 }
 
 app.on('ready', createWindow)
-
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -102,15 +111,6 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-const electron = require('electron')
-const ipc = electron.ipcMain
-const path = require('path');
-const dialog = require('electron').dialog
-const shell = require('electron').shell;
-const Menu = require('electron').Menu;
-const Tray = require('electron').Tray;
-// var fs = require('fs')
 
 ipc.on('close-app', () => {
   if (mainWindow) {
@@ -130,12 +130,12 @@ ipc.on('local-address-config', (event, arg) => {
   }, (filePath) => {
     // fileNames is an array that contains all the selected
     if (!filePath || filePath === undefined) {
-      console.log("No file selected");
-      return;
+      console.log('No file selected')
+      return
     }
     console.log(filePath)
-    event.sender.send('local-address-config-reply', filePath);
-  });
+    event.sender.send('local-address-config-reply', filePath)
+  })
 })
 
 ipc.on('local-address-open', (event, arg) => {

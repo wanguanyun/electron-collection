@@ -174,8 +174,8 @@
       handleSearch() {
         this.fetchData()
       },
-      //点击标签检索
-      handleTagSearch(tag){
+      // 点击标签检索
+      handleTagSearch(tag) {
         this.formInline.queryname = tag
         this.fetchData()
       },

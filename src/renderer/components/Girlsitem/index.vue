@@ -48,8 +48,8 @@
     name: 'girlsitem',
     created() {
     },
-    //girlDataType  1:大类 2:小类
-    props: ['girlData','girlDataType'],
+    // girlDataType  1:大类 2:小类
+    props: ['girlData', 'girlDataType'],
     computed: {
       Base_url() {
         return process.env.BASE_API
@@ -66,15 +66,15 @@
       }
     },
     methods: {
-      //获取小姐姐子项信息列表
-      handleGirlitems(){
-        if(this.girlDataType === 1){
-          this.$router.push({ name: '详情', params: { id:this.girlData.gallery_id }})
+      // 获取小姐姐子项信息列表
+      handleGirlitems() {
+        if (this.girlDataType === 1) {
+          this.$router.push({ name: '详情', params: { id: this.girlData.gallery_id }})
         }
         return
       },
-      //点击tag标签搜索
-      handleTagSearch(tag){
+      // 点击tag标签搜索
+      handleTagSearch(tag) {
         this.$emit('tag-search', tag)
       },
       // 修改小姐姐信息
@@ -87,11 +87,11 @@
         // 通知父组件
         this.$emit('delete-girl-data', this.girlData)
       },
-      //打开本地文件夹
+      // 打开本地文件夹
       openLoaclDir() {
         ipc.send('local-address-open', this.girlData.gallery_local)
       },
-      //复制网络地址到剪贴板-成功
+      // 复制网络地址到剪贴板-成功
       onCopy(e) {
         this.$notify({
           title: '成功',
@@ -99,7 +99,7 @@
           type: 'success'
         })
       },
-      //复制网络地址到剪贴板-失败
+      // 复制网络地址到剪贴板-失败
       onError(e) {
         this.$notify({
           title: '失败',

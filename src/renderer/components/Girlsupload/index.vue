@@ -51,7 +51,8 @@
             <el-input v-model="addGirlForm.netAddress" clearable auto-complete="off"></el-input>
           </el-form-item>
           <el-form-item label="本地地址配置" prop="localAddress">
-            <el-input readonly  type="textarea" v-model="addGirlForm.localAddress" autosize clearable auto-complete="off"></el-input>
+            <el-input readonly type="textarea" v-model="addGirlForm.localAddress" autosize clearable
+              auto-complete="off"></el-input>
             <el-button size="mini" @click="localAddressConfig">配置本地地址</el-button>
           </el-form-item>
           <el-form-item label="图集星级配置" prop="rank">
@@ -86,8 +87,8 @@
     name: 'girlsupload',
     created() {
       console.log(this.girlData)
-      this.default_img = this.girlData && this.girlData.img_name ?
-        `${this.Base_url}/img/${this.girlData.img_name}` : `${this.defaule_cover}`
+      this.default_img = this.girlData && this.girlData.img_name
+        ? `${this.Base_url}/img/${this.girlData.img_name}` : `${this.defaule_cover}`
       this.addGirlForm.title = this.girlData.gallery_name
       this.addGirlForm.dynamicTags = this.girlData.gallery_tag ? this.girlData.gallery_tag.split(',') : []
       this.addGirlForm.inputVisible = false
@@ -97,24 +98,24 @@
       this.addGirlForm.localAddress = this.girlData.gallery_local ? this.girlData.gallery_local : ''
       this.addGirlForm.rank = this.girlData.gallery_rank ? this.girlData.gallery_rank : 0
     },
-    mounted: function () {
+    mounted: function() {
       this.$nextTick(() => {
-        //Register IPC Renderer event handles once for this control
-        //监听主进程的返回
+        // Register IPC Renderer event handles once for this control
+        // 监听主进程的返回
         ipc.on('local-address-config-reply', (e, args) => {
-          const re = new RegExp("\\\\","g");
-          this.addGirlForm.localAddress = args[0].replace(re, "\\\\\\\\") || ''
-        });
-      });
+          const re = new RegExp('\\\\', 'g')
+          this.addGirlForm.localAddress = args[0].replace(re, '\\\\\\\\') || ''
+        })
+      })
     },
-    props: ['girlData','girlDataType'],
+    props: ['girlData', 'girlDataType'],
     computed: {
       Base_url() {
         return process.env.BASE_API
       },
       ...mapGetters([
         'defaule_cover'
-      ]),
+      ])
     },
     data() {
       return {
@@ -177,7 +178,7 @@
         this.addGirlForm.dynamicTags = []
         this.$refs['addGirlForm'].resetFields()
       },
-      //配置本地文件地址
+      // 配置本地文件地址
       localAddressConfig() {
         ipc.send('local-address-config')
       },
@@ -193,9 +194,9 @@
             formData.append('rank', this.addGirlForm.rank)
             formData.append('tags', this.addGirlForm.dynamicTags.join(','))
             formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
-            if(this.girlDataType === 2){
-              //小类新增
-              formData.append('galleryId',galleryId)
+            if (this.girlDataType === 2) {
+              // 小类新增
+              formData.append('galleryId', galleryId)
             }
             // 通知父组件可以提交信息了
             this.$emit('add-girl-data', formData)
@@ -216,13 +217,13 @@
             formData.append('rank', this.addGirlForm.rank)
             formData.append('tags', this.addGirlForm.dynamicTags.join(','))
             formData.append('imgfile', this.default_img_blob, `${uuid()}.png`)
-            if(this.girlDataType === 1){
-              //大类修改
-              formData.append('galleryId',this.girlData.gallery_id)
-            }else if(this.girlDataType === 2){
-              //小类修改
-              formData.append('galleryId',this.girlData.gallery_id)
-              formData.append('galleryItemId',this.girlData.gallery_item_id)
+            if (this.girlDataType === 1) {
+              // 大类修改
+              formData.append('galleryId', this.girlData.gallery_id)
+            } else if (this.girlDataType === 2) {
+              // 小类修改
+              formData.append('galleryId', this.girlData.gallery_id)
+              formData.append('galleryItemId', this.girlData.gallery_item_id)
             }
             formData.append('imgId', this.girlData.gallery_cover)
             // 通知父组件可以提交信息了
@@ -319,14 +320,15 @@
       }
     }
 
-    .el-input__inner,.el-textarea__inner {
+    .el-input__inner,
+    .el-textarea__inner {
       width: 100% !important;
       border-top: 0;
       border-left: 0;
       border-right: 0;
       border-radius: 0;
       font-size: 15px;
-      overflow-y:hidden;
+      overflow-y: hidden;
     }
 
     .el-rate {

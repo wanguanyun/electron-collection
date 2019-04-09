@@ -71,17 +71,17 @@
       Girlsupload
     },
     created() {
-      //获取图集大类信息
+      // 获取图集大类信息
       this.$store.dispatch('GetGirlInfo', {
-          galleryId: this.$route.params.id
-        })
+        galleryId: this.$route.params.id
+      })
       this.fetchData()
     },
     computed: {
       Base_url() {
         return process.env.BASE_API
       },
-      //获取图集大类信息
+      // 获取图集大类信息
       ...mapGetters([
         'girlInfo'
       ])
@@ -186,11 +186,11 @@
         this.$refs.girlsupload.init()
         // this.$refs.girlsupload.handleReset()
       },
-      //返回上一级
+      // 返回上一级
       goback() {
         this.$router.back()
       },
-      //点击标签检索
+      // 点击标签检索
       handleTagSearch(tag) {
         this.formInline.queryname = tag
         this.fetchData()
@@ -239,7 +239,7 @@
                 img_detail: item.img_detail,
                 img_id: item.img_id,
                 img_name: item.img_name,
-                img_size: item.img_size,
+                img_size: item.img_size
               }
             })
           }
