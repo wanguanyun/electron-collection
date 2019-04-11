@@ -4,6 +4,7 @@
       <div class="girl-box" @click="handleGirlitems">
         <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
+        <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite" :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
         <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
         <div v-if="girlDataType === 1" class="girl-item-list">
           <ul>
@@ -44,9 +45,14 @@
     mapGetters
   } from 'vuex'
   const ipc = require('electron').ipcRenderer
+  import SvgIcon from '@/components/SvgIcon'
   export default {
     name: 'girlsitem',
     created() {
+      console.log(this.girlData)
+    },
+    components: {
+      SvgIcon
     },
     // girlDataType  1:大类 2:小类
     props: ['girlData', 'girlDataType'],
@@ -76,6 +82,12 @@
       // 点击tag标签搜索
       handleTagSearch(tag) {
         this.$emit('tag-search', tag)
+      },
+      //是否设为最爱
+      handleFavourite(){
+        console.log(this.girlData)
+        console.log(1111)
+        this.$emit('set-favourite', this.girlData)
       },
       // 修改小姐姐信息
       modifyGirlItem() {
@@ -157,6 +169,15 @@
   * {
     //禁止用户选中
     -webkit-user-select: none !important;
+  }
+  .icon-favourite {
+    position: absolute;
+    top: 1%;
+    right: 3%;
+    font-size: 20px;
+    z-index: 10;
+    cursor: pointer;
+    color: #7f6360;
   }
 
   .clearfix:before,

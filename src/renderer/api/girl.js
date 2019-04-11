@@ -81,3 +81,13 @@ export function deleteGirlitem(params) {
     }
   })
 }
+
+export function setGirlitemFavourite(params) {
+  return request({
+    url: '/girl/favourite',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}

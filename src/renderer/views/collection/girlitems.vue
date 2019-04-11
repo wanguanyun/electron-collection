@@ -25,7 +25,7 @@
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
+      <Girlsitem @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
         v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
     </div>
 
@@ -61,7 +61,8 @@
     getGirlitems,
     addGirlitem,
     modifyGirlitem,
-    deleteGirlitem
+    deleteGirlitem,
+    setGirlitemFavourite
   } from '@/api/girl'
 
   export default {
@@ -128,6 +129,22 @@
             // 获取列表数据
             this.fetchData()
           })
+        }).catch(() => {})
+      },
+      //设为喜欢
+      handelFavourite(param){
+        setGirlitemFavourite(param).then(res => {
+          let index = null
+          for(let i=0;i<this.girlLists.length;i++){
+            if(this.girlLists[i].gallery_item_id == res.data.gallery_item_id){
+              index = i
+              this.girlLists[i].if_favourite = res.data.if_favourite
+              break
+            }
+          }
+          if(index){
+            this.$set(this.girlLists,index,this.girlLists[index])
+          }
         }).catch(() => {})
       },
       // 确认添小姐姐按钮点击
@@ -239,7 +256,8 @@
                 img_detail: item.img_detail,
                 img_id: item.img_id,
                 img_name: item.img_name,
-                img_size: item.img_size
+                img_size: item.img_size,
+                if_favourite:item.if_favourite
               }
             })
           }
