@@ -332,8 +332,14 @@
     }
 
     .el-pagination {
-      margin-top: 5px;
-      border-top: 1px solid #7f6360;
+      position: fixed;
+      right: 27px;
+      transform: rotate(90deg) translateX(50%);
+      top: 50%;
+      transform-origin: right;
+    }
+    .el-pagination.is-background .el-pager li {
+      transform: rotate(-90deg);
     }
 
     .el-dialog__header {
@@ -362,7 +368,7 @@
 
   .girls {
     &-item-container {
-      padding: 20px;
+      padding: 20px 25px 20px 20px;
     }
 
     &-text {

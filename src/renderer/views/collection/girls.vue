@@ -24,11 +24,11 @@
       <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="1"></Girlsitem>
     </div>
 
-    <el-row type="flex" justify="center">
+    <!-- <el-row type="flex" justify="center"> -->
       <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentpage" :page-size="12"
         layout="prev, pager, next" :total="total">
       </el-pagination>
-    </el-row>
+    <!-- </el-row> -->
 
     <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
       <transition name="upload" enter-active-class="animated fadeIn"
@@ -279,6 +279,7 @@
     }
 
 
+
     .el-pagination.is-background .el-pager li:not(.disabled).active {
       background-color: #7f6360;
     }
@@ -294,8 +295,14 @@
     }
 
     .el-pagination {
-      margin-top: 5px;
-      border-top: 1px solid #7f6360;
+      position: fixed;
+      right: 27px;
+      transform: rotate(90deg) translateX(50%);
+      top: 50%;
+      transform-origin: right;
+    }
+    .el-pagination.is-background .el-pager li {
+      transform: rotate(-90deg);
     }
 
     .el-dialog__header {
@@ -326,7 +333,7 @@
 
   .girls {
     &-container {
-      padding: 20px;
+      padding: 20px 25px 20px 20px;
     }
 
     &-text {
