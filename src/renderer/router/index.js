@@ -125,7 +125,7 @@ export const constantRouterMap = [
       {
         path: 'index',
         name: '设置',
-        component: () => import('@/views/favourite/index'),
+        component: () => import('@/views/setting/index'),
         meta: { title: '设置', icon: 'recycle' }
       }
     ]

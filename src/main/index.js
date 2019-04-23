@@ -1,16 +1,15 @@
 import {
   app,
+  ipcMain,
+  dialog,
+  shell,
+  Menu,
+  Tray,
+  nativeImage,
   BrowserWindow
 } from 'electron'
 
-const electron = require('electron')
-const ipc = electron.ipcMain
 const path = require('path')
-const dialog = require('electron').dialog
-const shell = require('electron').shell
-const Menu = require('electron').Menu
-const Tray = require('electron').Tray
-const nativeImage = require('electron').nativeImage
 
 /**
  * Set `__static` path to static files in production
@@ -112,19 +111,19 @@ app.on('activate', () => {
   }
 })
 
-ipc.on('close-app', () => {
+ipcMain.on('close-app', () => {
   if (mainWindow) {
     mainWindow.close()
   }
 })
-ipc.on('max-app', () => {
+ipcMain.on('max-app', () => {
   mainWindow.maximize()
 })
-ipc.on('min-app', () => {
+ipcMain.on('min-app', () => {
   mainWindow.minimize()
 })
 
-ipc.on('local-address-config', (event, arg) => {
+ipcMain.on('local-address-config', (event, arg) => {
   dialog.showOpenDialog({
     properties: ['openDirectory']
   }, (filePath) => {
@@ -138,7 +137,7 @@ ipc.on('local-address-config', (event, arg) => {
   })
 })
 
-ipc.on('local-address-open', (event, arg) => {
+ipcMain.on('local-address-open', (event, arg) => {
   console.log(arg)
   shell.openItem(arg)
 })

@@ -178,6 +178,10 @@
     z-index: 10;
     cursor: pointer;
     color: #7f6360;
+    transition: transform 0.3s ease 0s;
+    &:hover {
+      transform: scale(1.4);
+    }
   }
 
   .clearfix:before,

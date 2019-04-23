@@ -200,11 +200,12 @@
           gallerytype: '1'// 福利姬
         }).then(res => {
           loading.close()
-          console.log(res)
           if (res.code === 200) {
             this.total = res.data.total
             this.girlLists = res.data.rows
           }
+        }).catch(err => {
+          loading.close()
         })
       }
     }
