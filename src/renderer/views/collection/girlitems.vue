@@ -25,8 +25,11 @@
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
-        v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
+      <transition-group tag="div" enter-active-class="animated fadeIn">
+        <Girlsitem @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn"
+          @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"
+          :girl-data-type="2"></Girlsitem>
+      </transition-group>
     </div>
 
     <el-row type="flex" justify="center">
@@ -54,7 +57,9 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import {
+    mapGetters
+  } from 'vuex'
   import Girlsitem from '@/components/Girlsitem/index'
   import Girlsupload from '@/components/Girlsupload/index'
   import {
@@ -132,18 +137,18 @@
         }).catch(() => {})
       },
       //设为喜欢
-      handelFavourite(param){
+      handelFavourite(param) {
         setGirlitemFavourite(param).then(res => {
           let index = null
-          for(let i=0;i<this.girlLists.length;i++){
-            if(this.girlLists[i].gallery_item_id == res.data.gallery_item_id){
+          for (let i = 0; i < this.girlLists.length; i++) {
+            if (this.girlLists[i].gallery_item_id == res.data.gallery_item_id) {
               index = i
               this.girlLists[i].if_favourite = res.data.if_favourite
               break
             }
           }
-          if(index){
-            this.$set(this.girlLists,index,this.girlLists[index])
+          if (index) {
+            this.$set(this.girlLists, index, this.girlLists[index])
           }
         }).catch(() => {})
       },
@@ -222,6 +227,7 @@
       },
       // 获取列表数据
       fetchData() {
+        this.girlLists = [];
         // 使用到ref需要到钩子函数里先挂载一下
         this.$mount()
         const loading = this.$loading({
@@ -240,26 +246,48 @@
           console.log(res)
           if (res.code === 200) {
             this.total = res.data.total
-            this.girlLists = res.data.rows.map(item => {
-              return {
-                create_time: item.create_time,
-                gallery_id: item.gallery_id,
-                gallery_item_id: item.gallery_item_id,
-                gallery_cover: item.gallery_item_cover,
-                gallery_del_flag: item.gallery_item_del_flag,
-                gallery_detail: item.gallery_item_detail,
-                gallery_local: item.gallery_item_local,
-                gallery_name: item.gallery_item_name,
-                gallery_net: item.gallery_item_net,
-                gallery_rank: item.gallery_item_rank,
-                gallery_tag: item.gallery_item_tag,
-                img_detail: item.img_detail,
-                img_id: item.img_id,
-                img_name: item.img_name,
-                img_size: item.img_size,
-                if_favourite:item.if_favourite
-              }
-            })
+            for (let i = 0; i < res.data.rows.length; i++) {
+              setTimeout(() => {
+                this.girlLists.push({
+                  create_time: res.data.rows[i].create_time,
+                  gallery_id: res.data.rows[i].gallery_id,
+                  gallery_item_id: res.data.rows[i].gallery_item_id,
+                  gallery_cover: res.data.rows[i].gallery_item_cover,
+                  gallery_del_flag: res.data.rows[i].gallery_item_del_flag,
+                  gallery_detail: res.data.rows[i].gallery_item_detail,
+                  gallery_local: res.data.rows[i].gallery_item_local,
+                  gallery_name: res.data.rows[i].gallery_item_name,
+                  gallery_net: res.data.rows[i].gallery_item_net,
+                  gallery_rank: res.data.rows[i].gallery_item_rank,
+                  gallery_tag: res.data.rows[i].gallery_item_tag,
+                  img_detail: res.data.rows[i].img_detail,
+                  img_id: res.data.rows[i].img_id,
+                  img_name: res.data.rows[i].img_name,
+                  img_size: res.data.rows[i].img_size,
+                  if_favourite: res.data.rows[i].if_favourite
+                });
+              }, i * 80);
+            }
+            // this.girlLists = res.data.rows.map(item => {
+            //   return {
+            //     create_time: item.create_time,
+            //     gallery_id: item.gallery_id,
+            //     gallery_item_id: item.gallery_item_id,
+            //     gallery_cover: item.gallery_item_cover,
+            //     gallery_del_flag: item.gallery_item_del_flag,
+            //     gallery_detail: item.gallery_item_detail,
+            //     gallery_local: item.gallery_item_local,
+            //     gallery_name: item.gallery_item_name,
+            //     gallery_net: item.gallery_item_net,
+            //     gallery_rank: item.gallery_item_rank,
+            //     gallery_tag: item.gallery_item_tag,
+            //     img_detail: item.img_detail,
+            //     img_id: item.img_id,
+            //     img_name: item.img_name,
+            //     img_size: item.img_size,
+            //     if_favourite:item.if_favourite
+            //   }
+            // })
           }
         })
       }
@@ -356,6 +384,7 @@
       top: 50%;
       transform-origin: right;
     }
+
     .el-pagination.is-background .el-pager li {
       transform: rotate(-90deg);
     }
@@ -387,6 +416,7 @@
   .girls {
     &-item-container {
       padding: 20px 25px 20px 20px;
+      overflow-y: scroll;
     }
 
     &-text {

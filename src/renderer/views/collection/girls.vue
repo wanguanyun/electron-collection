@@ -16,29 +16,35 @@
           <el-button type="primary" @click="handleSearch" icon="el-icon-search">GKD</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'" icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
+          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'"
+            icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <div ref="girls_container" class="clearfix">
-      <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="1"></Girlsitem>
+      <transition-group tag="div" enter-active-class="animated fadeIn">
+        <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
+          v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="1"></Girlsitem>
+      </transition-group>
     </div>
 
     <!-- <el-row type="flex" justify="center"> -->
-      <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentpage" :page-size="12"
-        layout="prev, pager, next" :total="total">
-      </el-pagination>
+    <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentpage" :page-size="12"
+      layout="prev, pager, next" :total="total">
+    </el-pagination>
     <!-- </el-row> -->
 
     <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
-      <transition name="upload" enter-active-class="animated fadeIn"
-                        leave-active-class="animated fadeOutLeft">
-      <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="1" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+      <transition name="upload" enter-active-class="animated fadeIn" leave-active-class="animated fadeOutLeft">
+        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="1" ref="girlsupload"
+          @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
       </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
-        <el-button v-if="addModifyButton=='add'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleAdd">新 增</el-button>
-        <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading" @click="handleModify">修 改</el-button>
+        <el-button v-if="addModifyButton=='add'" size="mini" type="primary" :loading="handleAddingLoading"
+          @click="handleAdd">新 增</el-button>
+        <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading"
+          @click="handleModify">修 改</el-button>
       </span>
     </el-dialog>
 
@@ -102,7 +108,7 @@
           type: 'warning'
         }).then(() => {
           deleteGirl(param).then(res => {
-          // 关闭弹窗
+            // 关闭弹窗
             this.$notify({
               title: '成功',
               message: res.data,
@@ -111,8 +117,7 @@
             // 获取列表数据
             this.fetchData()
           })
-        }).catch(() => {
-        })
+        }).catch(() => {})
       },
       // 确认添小姐姐按钮点击
       handleAdd() {
@@ -185,6 +190,7 @@
       },
       // 获取列表数据
       fetchData() {
+        this.girlLists = [];
         // 使用到ref需要到钩子函数里先挂载一下
         this.$mount()
         const loading = this.$loading({
@@ -197,12 +203,18 @@
           ...this.formInline,
           currentpage: this.currentpage,
           pagesize: this.pagesize,
-          gallerytype: '1'// 福利姬
+          gallerytype: '1' // 福利姬
         }).then(res => {
           loading.close()
           if (res.code === 200) {
             this.total = res.data.total
-            this.girlLists = res.data.rows
+            //顺序过渡效果强行实现233333
+            for (let i = 0; i < res.data.rows.length; i++) {
+              setTimeout(() => {
+                this.girlLists.push(res.data.rows[i]);
+              }, i * 80);
+            }
+            // this.girlLists = res.data.rows
           }
         }).catch(err => {
           loading.close()
@@ -302,6 +314,7 @@
       top: 50%;
       transform-origin: right;
     }
+
     .el-pagination.is-background .el-pager li {
       transform: rotate(-90deg);
     }
@@ -320,8 +333,6 @@
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
-
-
   .clearfix:before,
   .clearfix:after {
     display: table;
@@ -335,6 +346,7 @@
   .girls {
     &-container {
       padding: 20px 25px 20px 20px;
+      overflow-y: scroll;
     }
 
     &-text {
