@@ -5,10 +5,14 @@ const user = {
   state: {
     token: getToken(),
     name: '',
+    //默认头像
     avatar: '',
     roles: [],
-    // 默认封面
-    defaule_cover: `${process.env.BASE_API}/img/default_cover.jpg`
+    // 默认封面<大类>
+    defaule_cover: '',
+    // 默认封面<小类>
+    defaule_item_cover: '',
+    last_login_time:''
   },
 
   mutations: {
@@ -19,10 +23,19 @@ const user = {
       state.name = name
     },
     SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
+      state.avatar = `${process.env.BASE_API}/img/${avatar}`
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_DEFAULT_COVER: (state, cover) => {
+      state.defaule_cover = `${process.env.BASE_API}/img/${cover}`
+    },
+    SET_DEFAULT_ITEM_COVER: (state, cover) => {
+      state.defaule_item_cover = `${process.env.BASE_API}/img/${cover}`
+    },
+    SET_LAST_LOGIN_TIME: (state, time) => {
+      state.last_login_time = time
     }
   },
 
@@ -35,6 +48,11 @@ const user = {
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)
+          commit('SET_AVATAR', data.default_avatar)
+          commit('SET_NAME', data.userName)
+          commit('SET_DEFAULT_COVER',data.gallery_img)
+          commit('SET_DEFAULT_ITEM_COVER',data.gallery_item_img)
+          commit('SET_LAST_LOGIN_TIME',data.last_login_time)
           resolve()
         }).catch(error => {
           reject(error)
@@ -47,13 +65,16 @@ const user = {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
           const data = response.data
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
-          } else {
-            reject('getInfo: roles must be a non-null array !')
-          }
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
+          // if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+          //   commit('SET_ROLES', data.roles)
+          // } else {
+          //   reject('getInfo: roles must be a non-null array !')
+          // }
+          commit('SET_AVATAR', data.default_avatar)
+          commit('SET_NAME', data.userName)
+          commit('SET_DEFAULT_COVER',data.gallery_img)
+          commit('SET_DEFAULT_ITEM_COVER',data.gallery_item_img)
+          commit('SET_LAST_LOGIN_TIME',data.last_login_time)
           resolve(response)
         }).catch(error => {
           reject(error)

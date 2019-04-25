@@ -14,16 +14,16 @@
                                 <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
                                     <img :src="defaule_cover"
                                         style="width: 100%;display: block;">
-                                        <SvgIcon iconClass="post"
+                                        <SvgIcon iconClass="write"
                                     class="user-setting-post"></SvgIcon>
                                     <span class="post-title">图集大类封面配置</span>
                                 </el-card>
                             </el-col>
                              <el-col :span="4" :offset="1">
                                 <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
-                                    <img :src="defaule_cover"
+                                    <img :src="defaule_item_cover"
                                         style="width: 100%;display: block;">
-                                        <SvgIcon iconClass="post"
+                                        <SvgIcon iconClass="write"
                                     class="user-setting-post"></SvgIcon>
                                     <span class="post-title">图集小类封面配置</span>
                                 </el-card>
@@ -52,7 +52,7 @@
                     </div>
                     <div class="user-img">
                         <div class="user-avatar">
-                            <img :src="Base_url+'/img/user-avatar.gif'">
+                            <img :src="avatar">
                             <div class="user-avatar-modify">
                                 <SvgIcon @click.native="handleFavourite" iconClass="upload" class="user-avatar-upload">
                                 </SvgIcon> 修改头像
@@ -65,7 +65,7 @@
                     </div>
                     <div class="user-detail">
                         <el-tag type="info">我就是我是不一样的烟火</el-tag>
-                        <el-tag type="success">上次登录日期:2019-04-21 12:11</el-tag>
+                        <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
                         <el-tag type="warning">已发布文章21篇</el-tag>
                         <el-tag type="warning">已收录30位小姐姐</el-tag>
                         <el-tag type="danger">我是有底线的</el-tag>
@@ -95,7 +95,10 @@
                 return process.env.BASE_API
             },
             ...mapGetters([
-        'defaule_cover'
+        'defaule_cover',
+        'defaule_item_cover',
+        'avatar',
+        'last_login_time'
       ])
         },
         components: {
@@ -110,6 +113,7 @@
         mounted(){
             this.user_info_visible = true;
             this.user_config_one = true;
+            console.log(this.last_login_time)
         },
         methods: {
 

@@ -2,7 +2,7 @@ import router from './router'
 import store from './store'
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
-// import { Message } from 'element-ui'
+import { Message } from 'element-ui'
 
 const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach((to, from, next) => {
@@ -13,15 +13,16 @@ router.beforeEach((to, from, next) => {
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
       if (store.getters.roles.length === 0) {
+        console.log("调接口")
         next()
-        // store.dispatch('GetInfo').then(res => { // 拉取用户信息
-        //   next()
-        // }).catch((err) => {
-        //   store.dispatch('FedLogOut').then(() => {
-        //     Message.error(err || 'Verification failed, please login again')
-        //     next({ path: '/' })
-        //   })
-        // })
+        store.dispatch('GetInfo').then(res => { // 拉取用户信息
+          next()
+        }).catch((err) => {
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err || 'Verification failed, please login again')
+            next({ path: '/' })
+          })
+        })
       } else {
         next()
       }

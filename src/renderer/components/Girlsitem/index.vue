@@ -2,7 +2,8 @@
   <el-col class="girl-item" :xs="12" :sm="6" :md="6" :lg="4" :xl="4">
     <el-card shadow="always" :body-style="{ padding: '0px' }">
       <div class="girl-box" @click="handleGirlitems">
-        <img :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
+        <img v-if="girlDataType === 1" :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
+        <img v-if="girlDataType === 2" :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
         <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite" :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
         <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
@@ -61,7 +62,8 @@
         return process.env.BASE_API
       },
       ...mapGetters([
-        'defaule_cover'
+        'defaule_cover',
+        'defaule_item_cover'
       ])
     },
     data() {
