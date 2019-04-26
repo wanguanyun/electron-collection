@@ -2,35 +2,31 @@
     <div class="setting">
         <el-row :gutter="20" type="flex" justify="center">
             <el-col :span="19">
-                <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
-                <el-card class="box-card" shadow="hover" v-if="user_config_one">
-                    <div class="user-config-title">
-                        <SvgIcon iconClass="pic"
-                                    class="user-setting-pic"></SvgIcon>图集默认封面配置
-                    </div>
-                    <div class="user-config-contant">
-                        <el-row :gutter="20">
-                            <el-col :span="4" :offset="1">
-                                <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
-                                    <img :src="defaule_cover"
-                                        style="width: 100%;display: block;">
-                                        <SvgIcon iconClass="write"
-                                    class="user-setting-post"></SvgIcon>
-                                    <span class="post-title">图集大类封面配置</span>
-                                </el-card>
-                            </el-col>
-                             <el-col :span="4" :offset="1">
-                                <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
-                                    <img :src="defaule_item_cover"
-                                        style="width: 100%;display: block;">
-                                        <SvgIcon iconClass="write"
-                                    class="user-setting-post"></SvgIcon>
-                                    <span class="post-title">图集小类封面配置</span>
-                                </el-card>
-                            </el-col>
-                        </el-row>
-                    </div>
-                </el-card>
+                <transition name="upload" enter-active-class="animated fadeInUp"
+                    leave-active-class="animated fadeOutLeft">
+                    <el-card class="box-card" shadow="hover" v-if="user_config_one">
+                        <div class="user-config-title">
+                            <SvgIcon iconClass="pic" class="user-setting-pic"></SvgIcon>图集默认封面配置
+                        </div>
+                        <div class="user-config-contant">
+                            <el-row :gutter="20">
+                                <el-col :span="4" :offset="1">
+                                    <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
+                                        <img :src="defaule_cover" style="width: 100%;display: block;">
+                                        <SvgIcon iconClass="write" class="user-setting-post"></SvgIcon>
+                                        <span class="post-title">图集大类封面配置</span>
+                                    </el-card>
+                                </el-col>
+                                <el-col :span="4" :offset="1">
+                                    <el-card shadow="hover" :body-style="{ padding: '0px',position: 'relative' }">
+                                        <img :src="defaule_item_cover" style="width: 100%;display: block;">
+                                        <SvgIcon iconClass="write" class="user-setting-post"></SvgIcon>
+                                        <span class="post-title">图集小类封面配置</span>
+                                    </el-card>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </el-card>
                 </transition>
                 <el-card class="box-card" shadow="hover">
                     <div class="user-config-title">
@@ -45,35 +41,58 @@
                 </el-card>
             </el-col>
             <el-col :span="5">
-                <transition name="upload" enter-active-class="animated fadeInDown" leave-active-class="animated fadeOutLeft">
-                <el-card class="user-info" v-if="user_info_visible">
-                    <div class="user-header">
-                        个人信息
-                    </div>
-                    <div class="user-img">
-                        <div class="user-avatar">
-                            <img :src="avatar">
-                            <div class="user-avatar-modify">
-                                <SvgIcon @click.native="handleFavourite" iconClass="upload" class="user-avatar-upload">
-                                </SvgIcon> 修改头像
-                            </div>
-                            <div class="user-avatar-reset">
-                                <SvgIcon @click.native="handleFavourite" iconClass="forward_fill"
-                                    class="user-avatar-upload"></SvgIcon> 返回默认
+                <transition name="upload" enter-active-class="animated fadeInDown"
+                    leave-active-class="animated fadeOutLeft">
+                    <el-card class="user-info" v-if="user_info_visible">
+                        <div class="user-header">
+                            个人信息
+                        </div>
+                        <div class="user-img">
+                            <div class="user-avatar">
+                                <img :src="avatar">
+                                <label for="uploads" class="user-avatar-modify" >
+                                    <SvgIcon iconClass="upload" class="user-avatar-upload">
+                                    </SvgIcon> 修改头像
+                                </label>
+                                <input type="file" ref="uploads" id="uploads"
+                                    style="position:absolute; clip:rect(0 0 0 0);display:none;"
+                                    accept="image/png, image/jpeg, image/gif, image/jpg" @change="uploadImg($event)">
+                                <div class="user-avatar-reset" @click="resetEditAvatar">
+                                    <SvgIcon iconClass="forward_fill"
+                                        class="user-avatar-upload"></SvgIcon> 返回默认
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="user-detail">
-                        <el-tag type="info">我就是我是不一样的烟火</el-tag>
-                        <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
-                        <el-tag type="warning">已发布文章21篇</el-tag>
-                        <el-tag type="warning">已收录30位小姐姐</el-tag>
-                        <el-tag type="danger">我是有底线的</el-tag>
-                    </div>
-                    <div class="user-operation">
-                        <el-button type="primary"><i class="el-icon-edit"></i>修改密码</el-button>
-                    </div>
-                </el-card>
+                        <transition name="editAvatar" v-on:after-enter="cropper_visible = true"
+                            v-on:before-leave="cropper_visible = false;">
+                            <div class="modify-avatar" v-if="user_modify_avatar" ref="modify_avatar">
+                                <vue-cropper ref="cropper" v-if="cropper_visible" class="contant-cropper"
+                                    :img="option.img" :output-size="option.size" :output-type="option.outputType"
+                                    :fixed="true" :info="true" :can-move="option.canMove"
+                                    :fixed-number="option.fixedNumber" :can-move-box="option.canMoveBox"
+                                    :fixed-box="option.fixedBox" :auto-crop="option.autoCrop"
+                                    :auto-crop-width="option.autoCropWidth" :auto-crop-height="option.autoCropHeight"
+                                    :center-box="option.centerBox" :enlarge="2" :high="option.high">
+                                </vue-cropper>
+                                <div class="btn_cropper">
+                                    <SvgIcon @click.native="comfirmEditAvatar" iconClass="check"
+                                        class="btn_cropper_check"></SvgIcon>
+                                    <SvgIcon @click.native="closeEditAvatar" iconClass="close"
+                                        class="btn_cropper_close"></SvgIcon>
+                                </div>
+                            </div>
+                        </transition>
+                        <div class="user-detail">
+                            <el-tag type="info">我就是我是不一样的烟火</el-tag>
+                            <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
+                            <el-tag type="warning">已发布文章21篇</el-tag>
+                            <el-tag type="warning">已收录30位小姐姐</el-tag>
+                            <el-tag type="danger">我是有底线的</el-tag>
+                        </div>
+                        <div class="user-operation">
+                            <el-button type="primary"><i class="el-icon-edit"></i>修改密码</el-button>
+                        </div>
+                    </el-card>
                 </transition>
             </el-col>
         </el-row>
@@ -82,12 +101,37 @@
 
 <script>
     import SvgIcon from '@/components/SvgIcon'
-    import { mapGetters } from 'vuex'
+    import {
+        mapGetters
+    } from 'vuex'
+    import {
+        uuid
+    } from '@/utils/uuid'
+    import {
+        modifyAvatar
+    } from '@/api/setting'
     export default {
         data() {
             return {
-                user_info_visible:false,
-                user_config_one:false,
+                user_info_visible: false,
+                user_config_one: false,
+                user_modify_avatar: false,
+                cropper_visible: false,
+                option: {
+                    img: '',
+                    size: 0.5,
+                    fixedNumber: [1, 1],
+                    outputType: 'jpeg',
+                    canMove: true,
+                    fixedBox: false,
+                    canMoveBox: true,
+                    autoCrop: true,
+                    // 只有自动截图开启 宽度高度才生效
+                    autoCropWidth: 200,
+                    autoCropHeight: 200,
+                    centerBox: false,
+                    high: false
+                },
             }
         },
         computed: {
@@ -95,11 +139,11 @@
                 return process.env.BASE_API
             },
             ...mapGetters([
-        'defaule_cover',
-        'defaule_item_cover',
-        'avatar',
-        'last_login_time'
-      ])
+                'defaule_cover',
+                'defaule_item_cover',
+                'avatar',
+                'last_login_time'
+            ])
         },
         components: {
             SvgIcon
@@ -110,13 +154,96 @@
         created() {
 
         },
-        mounted(){
-            this.user_info_visible = true;
-            this.user_config_one = true;
-            console.log(this.last_login_time)
+        mounted() {
+            this.user_info_visible = true
+            this.user_config_one = true
         },
         methods: {
+            closeEditAvatar() {
+                new Promise((resolve, reject) => {
+                    this.option.img = ''
+                    this.$refs.cropper.clearCrop()
+                    resolve();
+                }).then(() => {
+                    this.user_modify_avatar = false
+                })
+            },
+            //确认修改头像
+            comfirmEditAvatar() {
+                const loading = this.$loading({
+                    lock: true,
+                    target: this.$refs.modify_avatar,
+                    fullscreen: false,
+                    text: '上传头像中....'
+                })
+                let formData = new FormData()
+                const avatarName = `${uuid()}.png`
+                this.$refs.cropper.getCropBlob((data) => {
+                    formData.append('imgfile', data, `${avatarName}`)
+                    modifyAvatar(formData).then(res => {
+                        this.$notify({
+                            title: res.message,
+                            message: res.data,
+                            type: 'success'
+                        })
+                        loading.close()
+                        //更改store内头像地址
+                        this.$store.commit('SET_AVATAR', avatarName)
+                        //关闭编辑层
+                        this.closeEditAvatar();
+                    }).catch(err => {
+                        loading.close()
+                    })
+                })
 
+            },
+            //重置用户头像
+            resetEditAvatar() {
+                this.$confirm('是否确定重置, 是否继续?', '嗯???', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let formData = new FormData()
+                    // formData.append('imgfile', '', '')
+                    modifyAvatar(formData).then(res => {
+                        this.$notify({
+                            title: res.message,
+                            message: "重置成功！",
+                            type: 'success'
+                        })
+                        //更改store内头像地址
+                        this.$store.commit('SET_AVATAR', res.data)
+                    }).catch(err => {
+                        loading.close()
+                    })
+                }).catch(() => {})
+            },
+            uploadImg(e) {
+                // 上传图片
+                var file = e.target.files[0]
+                if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(e.target.value)) {
+                    alert('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
+                    return false
+                }
+                var reader = new FileReader()
+                reader.onload = (e) => {
+                    let data
+                    if (typeof e.target.result === 'object') {
+                        // 把Array Buffer转化为blob 如果是base64不需要
+                        data = window.URL.createObjectURL(new Blob([e.target.result]))
+                    } else {
+                        data = e.target.result
+                    }
+                    this.option.img = data
+                }
+                // 转化为base64
+                reader.readAsDataURL(file)
+                // 转化为blob
+                // reader.readAsArrayBuffer(file)
+                //显示修改div
+                this.user_modify_avatar = true;
+            },
         }
     }
 </script>
@@ -125,11 +252,12 @@
         .el-card__body {
             padding: 10px;
         }
+
         .el-card {
             overflow: unset;
         }
 
-        .el-button {
+        .user-operation .el-button {
             background-color: rgb(127, 99, 96);
             border: none;
             color: #fff;
@@ -137,6 +265,20 @@
             transition: 800ms ease all;
             outline: none;
             padding: 7px 18px;
+
+            &:hover {
+                background: #fff;
+                color: rgb(127, 99, 96);
+            }
+        }
+
+        .btn_cropper .el-button {
+            background-color: rgb(127, 99, 96);
+            border: none;
+            color: #fff;
+            position: relative;
+            transition: 800ms ease all;
+            outline: none;
 
             &:hover {
                 background: #fff;
@@ -191,7 +333,7 @@
         padding: 20px;
 
         .box-card {
-            padding:5px 10px;
+            padding: 5px 10px;
             margin-bottom: 10px;
             transition: transform 0.6s ease 0s;
 
@@ -204,8 +346,10 @@
                 padding: 5px;
                 color: #7f6360;
             }
+
             & .user-config-contant {
                 padding: 5px 0;
+
                 & .post-title {
                     position: absolute;
                     left: -30px;
@@ -224,13 +368,16 @@
                 font-size: 20px;
                 margin-right: 5px;
             }
-            & .user-setting-post{
+
+            & .user-setting-post {
                 font-size: 20px;
                 position: absolute;
                 right: 10px;
                 bottom: 10px;
-                color: #7f6360;cursor: pointer;
+                color: #7f6360;
+                cursor: pointer;
                 transition: transform 0.3s ease 0s;
+
                 &:hover {
                     transform: scale(1.1);
                 }
@@ -344,6 +491,56 @@
             }
         }
 
+        .modify-avatar {
+            height: 150px;
+            opacity: 1;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+
+            & .contant-cropper {
+                float: left;
+                width: 90%;
+            }
+
+            & .btn_cropper {
+                float: right;
+                width: 10%;
+                height: 100%;
+                position: relative;
+
+                & .btn_cropper_check,
+                & .btn_cropper_close {
+                    position: absolute;
+                    font-size: 20px;
+                    color: #fff;
+                    background-color: #7f6360;
+                    cursor: pointer;
+                    left: 4px;
+                    transition: transform 0.3s ease 0s;
+
+                    &:hover {
+                        transform: scale(1.1);
+                    }
+                }
+
+                & .btn_cropper_check {
+                    top: 80%;
+                }
+
+                & .btn_cropper_close {
+                    top: 60%;
+                }
+            }
+        }
+
+        .editAvatar-enter-active {
+            animation: showEditAvatar 0.5s linear forwards;
+        }
+
+        .editAvatar-leave-active {
+            animation: showEditAvatar 0.5s linear forwards reverse;
+        }
+
         .user-detail {
             padding: 10px 0;
             border-bottom: 1px solid #ccc;
@@ -352,6 +549,24 @@
         .user-operation {
             padding-top: 10px;
             text-align: center;
+        }
+
+
+        @keyframes showEditAvatar {
+            0% {
+                height: 0px;
+                opacity: 0;
+            }
+
+            50% {
+                height: 75px;
+                opacity: 0.5;
+            }
+
+            100% {
+                height: 150px;
+                opacity: 1;
+            }
         }
     }
 </style>
