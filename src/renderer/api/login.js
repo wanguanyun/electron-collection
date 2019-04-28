@@ -16,7 +16,7 @@ export function getInfo(token) {
     url: '/users/info',
     method: 'post',
     // params: { token }
-    data:{
+    data: {
       token
     }
   })

@@ -88,7 +88,7 @@
     created() {
       console.log(this.girlData)
       this.default_img = this.girlData && this.girlData.img_name
-        ? `${this.Base_url}/img/${this.girlData.img_name}` : `${this.defaule_cover}`
+        ? `${this.Base_url}/img/${this.girlData.img_name}` : (this.girlDataType === 1 ? `${this.defaule_cover}` : `${this.defaule_item_cover}`)
       this.addGirlForm.title = this.girlData.gallery_name
       this.addGirlForm.dynamicTags = this.girlData.gallery_tag ? this.girlData.gallery_tag.split(',') : []
       this.addGirlForm.inputVisible = false
@@ -114,7 +114,8 @@
         return process.env.BASE_API
       },
       ...mapGetters([
-        'defaule_cover'
+        'defaule_cover',
+        'defaule_item_cover'
       ])
     },
     data() {

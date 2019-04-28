@@ -136,12 +136,12 @@
           })
         }).catch(() => {})
       },
-      //设为喜欢
+      // 设为喜欢
       handelFavourite(param) {
         setGirlitemFavourite(param).then(res => {
           let index = null
           for (let i = 0; i < this.girlLists.length; i++) {
-            if (this.girlLists[i].gallery_item_id == res.data.gallery_item_id) {
+            if (this.girlLists[i].gallery_item_id === res.data.gallery_item_id) {
               index = i
               this.girlLists[i].if_favourite = res.data.if_favourite
               break
@@ -227,7 +227,7 @@
       },
       // 获取列表数据
       fetchData() {
-        this.girlLists = [];
+        this.girlLists = []
         // 使用到ref需要到钩子函数里先挂载一下
         this.$mount()
         const loading = this.$loading({
@@ -265,8 +265,8 @@
                   img_name: res.data.rows[i].img_name,
                   img_size: res.data.rows[i].img_size,
                   if_favourite: res.data.rows[i].if_favourite
-                });
-              }, i * 80);
+                })
+              }, i * 80)
             }
             // this.girlLists = res.data.rows.map(item => {
             //   return {

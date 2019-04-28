@@ -4,7 +4,7 @@ const app = {
   state: {
     sidebar: {
       // opened: !+Cookies.get('sidebarStatus'),
-      opened:false,
+      opened: false,
       withoutAnimation: false
     },
     device: 'desktop'

@@ -6,10 +6,11 @@
         <img v-if="girlDataType === 2" :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
         <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite" :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
+        <p class="icon-more">更多预览<SvgIcon @click.native="handleFavourite" iconClass="pull_right" class="pull-right-icon"></SvgIcon></p>
         <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
         <div v-if="girlDataType === 1" class="girl-item-list">
           <ul>
-            <li v-if="item" :key="index" v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
+            <li v-if="item" :title="item" :key="index" v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
               {{index+1}}、{{item}}</li>
           </ul>
         </div>
@@ -85,8 +86,8 @@
       handleTagSearch(tag) {
         this.$emit('tag-search', tag)
       },
-      //是否设为最爱
-      handleFavourite(){
+      // 是否设为最爱
+      handleFavourite() {
         console.log(this.girlData)
         console.log(1111)
         this.$emit('set-favourite', this.girlData)
@@ -185,6 +186,23 @@
       transform: scale(1.4);
     }
   }
+  .icon-more {
+    position: absolute;
+    bottom: -20%;
+    right: 4%;
+    font-size: 18px;
+    z-index: 10;
+    cursor: pointer;
+    color: #7f6360;
+    transition: all 0.3s ease 0s;
+    .pull-right-icon {
+      margin-left: 5px;
+      vertical-align: -0.25em;
+    }
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
 
   .clearfix:before,
   .clearfix:after {
@@ -228,6 +246,8 @@
       position: absolute;
       top: 100%;
       bottom: 0;
+      left: 0;
+      right: 0;
       color: white;
       padding: 0 10px;
       transition: all 0.3s ease 0s;
@@ -241,6 +261,11 @@
         padding:0;
         & li {
           margin-bottom: 5px;
+          font-size: 14px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          width: 100%;
         }
       }
     }
@@ -290,6 +315,9 @@
       .girl-item-list {
         top:30px;
         z-index: 1;
+      }
+      .icon-more {
+        bottom:1%;
       }
     }
 

@@ -190,7 +190,7 @@
       },
       // 获取列表数据
       fetchData() {
-        this.girlLists = [];
+        this.girlLists = []
         // 使用到ref需要到钩子函数里先挂载一下
         this.$mount()
         const loading = this.$loading({
@@ -208,15 +208,15 @@
           loading.close()
           if (res.code === 200) {
             this.total = res.data.total
-            //顺序过渡效果强行实现233333
+            // 顺序过渡效果强行实现233333
             for (let i = 0; i < res.data.rows.length; i++) {
               setTimeout(() => {
-                this.girlLists.push(res.data.rows[i]);
-              }, i * 80);
+                this.girlLists.push(res.data.rows[i])
+              }, i * 80)
             }
             // this.girlLists = res.data.rows
           }
-        }).catch(err => {
+        }).catch(() => {
           loading.close()
         })
       }

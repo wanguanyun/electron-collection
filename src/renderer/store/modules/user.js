@@ -5,14 +5,14 @@ const user = {
   state: {
     token: getToken(),
     name: '',
-    //默认头像
+    // 默认头像
     avatar: '',
     roles: [],
     // 默认封面<大类>
     defaule_cover: '',
     // 默认封面<小类>
     defaule_item_cover: '',
-    last_login_time:''
+    last_login_time: ''
   },
 
   mutations: {
@@ -50,9 +50,9 @@ const user = {
           commit('SET_TOKEN', data.token)
           commit('SET_AVATAR', data.default_avatar)
           commit('SET_NAME', data.userName)
-          commit('SET_DEFAULT_COVER',data.gallery_img)
-          commit('SET_DEFAULT_ITEM_COVER',data.gallery_item_img)
-          commit('SET_LAST_LOGIN_TIME',data.last_login_time)
+          commit('SET_DEFAULT_COVER', data.gallery_img)
+          commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
+          commit('SET_LAST_LOGIN_TIME', data.last_login_time)
           resolve()
         }).catch(error => {
           reject(error)
@@ -72,9 +72,9 @@ const user = {
           // }
           commit('SET_AVATAR', data.default_avatar)
           commit('SET_NAME', data.userName)
-          commit('SET_DEFAULT_COVER',data.gallery_img)
-          commit('SET_DEFAULT_ITEM_COVER',data.gallery_item_img)
-          commit('SET_LAST_LOGIN_TIME',data.last_login_time)
+          commit('SET_DEFAULT_COVER', data.gallery_img)
+          commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
+          commit('SET_LAST_LOGIN_TIME', data.last_login_time)
           resolve(response)
         }).catch(error => {
           reject(error)
