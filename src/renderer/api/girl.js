@@ -91,3 +91,13 @@ export function setGirlitemFavourite(params) {
     }
   })
 }
+
+export function getGirlItemViewers(params) {
+  return request({
+    url: '/girl/item/viewer',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}

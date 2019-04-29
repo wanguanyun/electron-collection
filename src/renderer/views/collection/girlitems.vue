@@ -26,7 +26,7 @@
     </el-row>
     <div ref="girls_container" class="clearfix">
       <transition-group tag="div" enter-active-class="animated fadeIn">
-        <Girlsitem @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn"
+        <Girlsitem @more-item-viewer="showMoreItemViewer" @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn"
           @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"
           :girl-data-type="2"></Girlsitem>
       </transition-group>
@@ -41,7 +41,7 @@
     <el-dialog :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit" :visible.sync="dialogVisible"
       width="60%">
       <transition name="upload" enter-active-class="animated fadeIn" leave-active-class="animated fadeOutLeft">
-        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="2" ref="girlsupload"
+        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-viewer-data="modifyGirlItemViewers" :girl-data-type="2" ref="girlsupload"
           @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
       </transition>
       <span slot="footer">
@@ -52,7 +52,9 @@
           @click="handleModify">修 改</el-button>
       </span>
     </el-dialog>
-
+    <div class="images" style="display:none;" v-viewer="{movable: false}">
+      <img v-for="(src,index) in images" :src="src" :key="index">
+    </div>
   </div>
 </template>
 
@@ -67,7 +69,8 @@
     addGirlitem,
     modifyGirlitem,
     deleteGirlitem,
-    setGirlitemFavourite
+    setGirlitemFavourite,
+    getGirlItemViewers
   } from '@/api/girl'
 
   export default {
@@ -108,13 +111,20 @@
         currentpage: 1,
         pagesize: 12,
         // 需要编辑的Girlsitem数据
-        modifyGirlData: []
+        modifyGirlData: [],
+        //girlItem的预览图
+        modifyGirlItemViewers:[],
+        images: []
       }
     },
     methods: {
       modifyGirlbtn(param) {
         this.addModifyButton = 'modify'
         this.modifyGirlData = param
+        //实时获取图集小类的图片预览集
+        getGirlItemViewers(param).then(res => {
+          this.modifyGirlItemViewers = res.data
+        }).catch(()=>{})
         // 打开编辑弹窗
         this.dialogVisible = true
       },
@@ -225,6 +235,20 @@
       handleCurrentChange(currentpage) {
         this.fetchData()
       },
+      //展示图集小类更多图片预览
+      showMoreItemViewer(param){
+        let that = this
+        this.images = []
+        getGirlItemViewers(param).then(res => {
+          for(let item of res.data){
+            that.images.push(that.Base_url + '/img/'+item.img_name)
+          }
+          setTimeout(()=>{
+            const viewer = that.$el.querySelector('.images').$viewer
+            viewer.show()
+          },200)
+        }).catch(()=>{})
+      },
       // 获取列表数据
       fetchData() {
         this.girlLists = []
@@ -268,26 +292,6 @@
                 })
               }, i * 80)
             }
-            // this.girlLists = res.data.rows.map(item => {
-            //   return {
-            //     create_time: item.create_time,
-            //     gallery_id: item.gallery_id,
-            //     gallery_item_id: item.gallery_item_id,
-            //     gallery_cover: item.gallery_item_cover,
-            //     gallery_del_flag: item.gallery_item_del_flag,
-            //     gallery_detail: item.gallery_item_detail,
-            //     gallery_local: item.gallery_item_local,
-            //     gallery_name: item.gallery_item_name,
-            //     gallery_net: item.gallery_item_net,
-            //     gallery_rank: item.gallery_item_rank,
-            //     gallery_tag: item.gallery_item_tag,
-            //     img_detail: item.img_detail,
-            //     img_id: item.img_id,
-            //     img_name: item.img_name,
-            //     img_size: item.img_size,
-            //     if_favourite:item.if_favourite
-            //   }
-            // })
           }
         })
       }

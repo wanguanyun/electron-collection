@@ -1,4 +1,6 @@
 <template>
+  <div style="position:relative;">
+  <div v-if="girlDataType === 2 && moreViewerBth_visible" @click="showMoreViewer" class="more-viewer-btn-down"><i class="el-icon-arrow-down"></i></div>
   <div class="add-girl-container">
     <transition name="upload" enter-active-class="animated fadeInLeft" leave-active-class="animated fadeOutLeft"
       v-on:after-enter="cropper_visible = true" v-on:after-leave="cropper_visible = false">
@@ -22,6 +24,25 @@
           accept="image/png, image/jpeg, image/gif, image/jpg" @change="uploadImg($event)">
       </div>
     </transition>
+    <transition name="moreViewer" v-on:before-enter="moreViewerBth_visible = false" 
+    v-on:after-enter="moreViewerPic_visible = true" v-on:after-leave="moreViewerBth_visible = true"
+    v-on:before-leave="moreViewerPic_visible = false">
+    <div class="more-viewer" v-if="show_more_viewer">
+      <div class="more-viewer-img" v-if="girlDataType === 2 && moreViewerPic_visible" v-for="(item,index) in girlViewerDataLocal" :key="index">
+        <div @click="removeViewerImg(item)" class="more-viewer-img-delete"><i class="el-icon-close"></i></div>
+        <el-image :src="`${Base_url}/img/${item.img_name}`" fit="contain"></el-image>
+      </div>
+      <!-- <el-image v-if="girlDataType === 2 && moreViewerPic_visible" v-for="(item,index) in girlViewerData" :key="index" class="more-viewer-img" :src="`${Base_url}/img/${item.img_name}`" fit="contain"></el-image> -->
+      <!-- <el-image v-if="moreViewerPic_visible" class="more-viewer-img" src="http://localhost:8888/img/default_cover.jpg" fit="contain"></el-image>
+      <el-image v-if="moreViewerPic_visible" class="more-viewer-img" src="http://localhost:8888/img/default_cover.jpg" fit="contain"></el-image>
+      <el-image v-if="moreViewerPic_visible" class="more-viewer-img" src="http://localhost:8888/img/default_cover.jpg" fit="contain"></el-image> -->
+      <div v-if="moreViewerPic_visible" class="more-viewer-add"><i class="el-icon-circle-plus-outline"></i></div>
+      <div class="more-viewer-btn-up" @click="showMoreViewer"><i class="el-icon-arrow-up"></i></div>
+      <div class="block"></div>
+    </div>
+    </transition>
+    <!-- <div class="more-viewer-btn-down"><i class="el-icon-arrow-down"></i></div> -->
+    <div v-show="show_more_viewer" class="mask"></div>
     <el-row>
       <el-col :span="12">
         <div class="container-left">
@@ -73,6 +94,7 @@
       </el-col>
     </el-row>
   </div>
+  </div>
 </template>
 
 <script>
@@ -82,13 +104,17 @@
   import {
     uuid
   } from '@/utils/uuid'
+  import SvgIcon from '@/components/SvgIcon'
   const ipc = require('electron').ipcRenderer
   export default {
     name: 'girlsupload',
     created() {
+      //重新声明props变量 防止直接修改props变量
+      this.girlViewerDataLocal = this.girlViewerData
       console.log(this.girlData)
-      this.default_img = this.girlData && this.girlData.img_name
-        ? `${this.Base_url}/img/${this.girlData.img_name}` : (this.girlDataType === 1 ? `${this.defaule_cover}` : `${this.defaule_item_cover}`)
+      this.default_img = this.girlData && this.girlData.img_name ?
+        `${this.Base_url}/img/${this.girlData.img_name}` : (this.girlDataType === 1 ? `${this.defaule_cover}` :
+          `${this.defaule_item_cover}`)
       this.addGirlForm.title = this.girlData.gallery_name
       this.addGirlForm.dynamicTags = this.girlData.gallery_tag ? this.girlData.gallery_tag.split(',') : []
       this.addGirlForm.inputVisible = false
@@ -98,7 +124,7 @@
       this.addGirlForm.localAddress = this.girlData.gallery_local ? this.girlData.gallery_local : ''
       this.addGirlForm.rank = this.girlData.gallery_rank ? this.girlData.gallery_rank : 0
     },
-    mounted: function() {
+    mounted: function () {
       this.$nextTick(() => {
         // Register IPC Renderer event handles once for this control
         // 监听主进程的返回
@@ -108,7 +134,7 @@
         })
       })
     },
-    props: ['girlData', 'girlDataType'],
+    props: ['girlData', 'girlDataType','girlViewerData'],
     computed: {
       Base_url() {
         return process.env.BASE_API
@@ -117,6 +143,9 @@
         'defaule_cover',
         'defaule_item_cover'
       ])
+    },
+    components: {
+      SvgIcon
     },
     data() {
       return {
@@ -128,6 +157,10 @@
         // 上传图片是否展示
         upload_visible: false,
         cropper_visible: false,
+        show_more_viewer:false,
+        moreViewerPic_visible:false,
+        moreViewerBth_visible:true,
+        girlViewerDataLocal:[],
         addGirlForm: {
           title: '',
           dynamicTags: [],
@@ -294,7 +327,10 @@
       handleClose(tag) {
         this.addGirlForm.dynamicTags.splice(this.addGirlForm.dynamicTags.indexOf(tag), 1)
       },
-
+      //展示小类详情图片
+      showMoreViewer(){
+        this.show_more_viewer = !this.show_more_viewer;
+      },
       showInput() {
         this.addGirlForm.inputVisible = true
         this.$nextTick(_ => {
@@ -309,6 +345,17 @@
         }
         this.addGirlForm.inputVisible = false
         this.addGirlForm.inputValue = ''
+      },
+      //删除预览图
+      removeViewerImg(param){
+        console.log(param)
+        let tempList = this.girlViewerDataLocal.filter(item=>{
+          return item.img_id != param.img_id
+        })
+        this.girlViewerDataLocal = [];
+        for(let item of tempList){
+          this.girlViewerDataLocal.push(item)
+        }
       }
     }
   }
@@ -403,6 +450,121 @@
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
+  .moreViewer-enter-active {
+      animation: moreViewer 0.5s linear forwards;
+  }
+
+  .moreViewer-leave-active {
+      animation: moreViewer 0.5s linear forwards reverse;
+  }
+  .mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top:0;
+    bottom:0;
+    z-index: 3;
+    background-color: rgba(0,0,0,0);
+  }
+  .more-viewer {
+    position: absolute;
+    height: 245px;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    background-color: #fff;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    padding: 8px;
+
+    &-btn-up {
+      cursor: pointer;
+      display: inline-block;
+      position: absolute;
+      bottom: -20px;
+      color: rgb(127, 99, 96);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      width: 45px;
+      background-color: #fff;
+      text-align: center;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    }
+    &-btn-down {
+      cursor: pointer;
+      display: inline-block;
+      position: absolute;
+      top: -30px;
+      color: rgb(127, 99, 96);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 20px;
+      width: 45px;
+      background-color: #fff;
+      text-align: center;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .block {
+      display: inline-block;
+      position: absolute;
+      bottom: 0px;
+      width: 50px;
+      height: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff;
+    }
+
+    &-add {
+      width: 150px;
+      height: 225px;
+      position: relative;
+      text-align: center;
+      float: left;
+
+      i {
+        position: absolute;
+        font-size: 38px;
+        color: #7f6360;
+        cursor: pointer;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transition: transform 0.3s ease 0s;
+
+        &:hover {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      }
+    }
+
+    &-img {
+      width: 150px;
+      height: 225px;
+      margin-right: 5px;
+      float: left;
+      position: relative;
+      transition: transform 0.3s ease 0s;
+      &:hover {
+        transform: scale(1.02);
+      }
+      &-delete {
+        position: absolute;
+        cursor: pointer;
+        top: 5px;
+        width: 25px;
+        height: 25px;
+        right: 5px;
+        color: #fff;
+        line-height: 25px;
+        text-align: center;
+        font-size: 20px;
+        background-color: #7f6360;
+      }
+    }
+  }
+
   .container-upload {
     position: absolute;
     background: rgb(245, 245, 247);
@@ -580,5 +742,21 @@
         }
       }
     }
+    @keyframes moreViewer {
+            0% {
+                height: 0px;
+                opacity: 0;
+            }
+
+            50% {
+                height: 120px;
+                opacity: 0.5;
+            }
+
+            100% {
+                height: 245px;
+                opacity: 1;
+            }
+        }
   }
 </style>

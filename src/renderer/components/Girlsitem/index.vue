@@ -2,15 +2,21 @@
   <el-col class="girl-item" :xs="12" :sm="6" :md="6" :lg="4" :xl="4">
     <el-card shadow="always" :body-style="{ padding: '0px' }">
       <div class="girl-box" @click="handleGirlitems">
-        <img v-if="girlDataType === 1" :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
-        <img v-if="girlDataType === 2" :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" class="girl-image">
+        <img v-if="girlDataType === 1"
+          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
+        <img v-if="girlDataType === 2"
+          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" class="girl-image">
         <span v-text="girlData.gallery_name"></span>
-        <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite" :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
-        <p class="icon-more">更多预览<SvgIcon @click.native="handleFavourite" iconClass="pull_right" class="pull-right-icon"></SvgIcon></p>
+        <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite"
+          :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
+        <p v-if="girlDataType === 2" class="icon-more" @click="moreViewer">更多预览<SvgIcon iconClass="pull_right"
+            class="pull-right-icon"></SvgIcon>
+        </p>
         <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
         <div v-if="girlDataType === 1" class="girl-item-list">
           <ul>
-            <li v-if="item" :title="item" :key="index" v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
+            <li v-if="item" :title="item" :key="index"
+              v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
               {{index+1}}、{{item}}</li>
           </ul>
         </div>
@@ -78,7 +84,12 @@
       // 获取小姐姐子项信息列表
       handleGirlitems() {
         if (this.girlDataType === 1) {
-          this.$router.push({ name: '详情', params: { id: this.girlData.gallery_id }})
+          this.$router.push({
+            name: '详情',
+            params: {
+              id: this.girlData.gallery_id
+            }
+          })
         }
         return
       },
@@ -105,6 +116,11 @@
       // 打开本地文件夹
       openLoaclDir() {
         ipc.send('local-address-open', this.girlData.gallery_local)
+      },
+      // 打开更多预览
+      moreViewer() {
+        //通知父组件打开
+        this.$emit('more-item-viewer', this.girlData)
       },
       // 复制网络地址到剪贴板-成功
       onCopy(e) {
@@ -173,6 +189,7 @@
     //禁止用户选中
     -webkit-user-select: none !important;
   }
+
   .icon-favourite {
     position: absolute;
     top: 1%;
@@ -182,23 +199,28 @@
     cursor: pointer;
     color: #7f6360;
     transition: transform 0.3s ease 0s;
+
     &:hover {
       transform: scale(1.4);
     }
   }
+
   .icon-more {
     position: absolute;
     bottom: -20%;
     right: 4%;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 500;
     z-index: 10;
     cursor: pointer;
     color: #7f6360;
     transition: all 0.3s ease 0s;
+
     .pull-right-icon {
       margin-left: 5px;
       vertical-align: -0.25em;
     }
+
     &:hover {
       transform: scale(1.1);
     }
@@ -242,7 +264,7 @@
     }
 
     &-item-list {
-      overflow-y:auto;
+      overflow-y: auto;
       position: absolute;
       top: 100%;
       bottom: 0;
@@ -251,14 +273,19 @@
       color: white;
       padding: 0 10px;
       transition: all 0.3s ease 0s;
-      font-size:15px;
+      font-size: 15px;
       color: #7f6360;
       font-weight: 600;
       cursor: pointer;
-      &::-webkit-scrollbar { width: 0 !important }
+
+      &::-webkit-scrollbar {
+        width: 0 !important
+      }
+
       & ul {
         list-style: none;
-        padding:0;
+        padding: 0;
+
         & li {
           margin-bottom: 5px;
           font-size: 14px;
@@ -312,12 +339,14 @@
         bottom: 90%;
         z-index: 1;
       }
+
       .girl-item-list {
-        top:30px;
+        top: 30px;
         z-index: 1;
       }
+
       .icon-more {
-        bottom:1%;
+        bottom: 1%;
       }
     }
 
