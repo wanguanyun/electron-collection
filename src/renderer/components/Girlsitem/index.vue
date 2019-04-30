@@ -100,7 +100,6 @@
       // 是否设为最爱
       handleFavourite() {
         console.log(this.girlData)
-        console.log(1111)
         this.$emit('set-favourite', this.girlData)
       },
       // 修改小姐姐信息

@@ -153,6 +153,7 @@
                             <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
                             <el-tag type="warning">已发布文章21篇</el-tag>
                             <el-tag type="warning">已收录30位小姐姐</el-tag>
+                            <el-tag type="warning">上传图片123张(占用203MB)</el-tag>
                             <el-tag type="danger">我是有底线的</el-tag>
                         </div>
                         <div class="user-operation">

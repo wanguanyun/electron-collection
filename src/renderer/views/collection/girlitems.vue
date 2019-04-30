@@ -19,7 +19,7 @@
           <el-button type="primary" @click="handleSearch" icon="el-icon-search">GKD</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add'"
+          <el-button type="primary" @click="dialogVisible=true;addModifyButton='add';modifyGirlItemViewers = [];"
             icon="el-icon-circle-plus-outline">加个小姐姐</el-button>
         </el-form-item>
       </el-form>
@@ -122,8 +122,11 @@
         this.addModifyButton = 'modify'
         this.modifyGirlData = param
         //实时获取图集小类的图片预览集
+        this.modifyGirlItemViewers = []
         getGirlItemViewers(param).then(res => {
-          this.modifyGirlItemViewers = res.data
+          for(let item of res.data){
+            this.modifyGirlItemViewers.push(item)
+          }
         }).catch(()=>{})
         // 打开编辑弹窗
         this.dialogVisible = true
