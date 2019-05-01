@@ -67,7 +67,32 @@
       Girlsitem,
       Girlsupload
     },
+    watch: {
+      //监听路由，只要路由有变化(路径，参数等变化)都有执行下面的函数，你可以
+      $route: {
+        handler: function (val, oldVal) {
+          //created事件触发的函数可以在这里写...  
+          //都是componentA组件，声明周期还在，改变不了
+          if (this.$route.name == '福利姬') {
+            this.gallerytype = '1'
+          } else if (this.$route.name == '图集') {
+            this.gallerytype = '2'
+          } else if (this.$route.name == 'COS') {
+            this.gallerytype = '3'
+          }
+          this.fetchData()
+        },
+        deep: true
+      }
+    },
     created() {
+      if (this.$route.name == '福利姬') {
+        this.gallerytype = '1'
+      } else if (this.$route.name == '图集') {
+        this.gallerytype = '2'
+      } else if (this.$route.name == 'COS') {
+        this.gallerytype = '3'
+      }
       this.fetchData()
     },
     computed: {
@@ -81,6 +106,7 @@
         handleAddingLoading: false,
         // 新增/编辑按钮切换 add/modify
         addModifyButton: '',
+        gallerytype: '',
         dialogVisible: false,
         formInline: {
           queryname: '',
@@ -203,7 +229,7 @@
           ...this.formInline,
           currentpage: this.currentpage,
           pagesize: this.pagesize,
-          gallerytype: '1' // 福利姬
+          gallerytype: this.gallerytype
         }).then(res => {
           loading.close()
           if (res.code === 200) {

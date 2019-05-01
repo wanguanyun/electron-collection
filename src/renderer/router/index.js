@@ -67,13 +67,13 @@ export const constantRouterMap = [
       {
         path: 'net',
         name: '图集',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/collection/girls'),
         meta: { title: '图集', icon: 'net' }
       },
       {
         path: 'cos',
         name: 'COS',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/collection/girls'),
         meta: { title: 'COS', icon: 'net' }
       }
     ]

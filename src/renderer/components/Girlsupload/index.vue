@@ -43,12 +43,12 @@
             <transition name="editViewer" enter-active-class="animated flipInY" leave-active-class="animated flipOutY"
               v-on:before-enter="cropper_visible2 = true;" v-on:after-leave="cropper_visible2 = false;">
               <div class="modify-viewer" ref="modify_cover" v-if="user_modify_viewer">
-                <vue-cropper ref="cropper_viewer" v-if="cropper_visible2" class="contant-cropper" :img="option.imgViewer"
-                  :output-size="option.size" :output-type="option.outputType" :fixed="true" :info="true"
-                  :can-move="option.canMove" :fixed-number="option.fixedNumber" :can-move-box="option.canMoveBox"
-                  :fixed-box="option.fixedBox" :auto-crop="option.autoCrop" :auto-crop-width="option.autoCropWidth"
-                  :auto-crop-height="option.autoCropHeight" :center-box="option.centerBox" :enlarge="2"
-                  :high="option.high">
+                <vue-cropper ref="cropper_viewer" v-if="cropper_visible2" class="contant-cropper"
+                  :img="option.imgViewer" :output-size="option.size" :output-type="option.outputType" :fixed="true"
+                  :info="true" :can-move="option.canMove" :fixed-number="option.fixedNumber"
+                  :can-move-box="option.canMoveBox" :fixed-box="option.fixedBox" :auto-crop="option.autoCrop"
+                  :auto-crop-width="option.autoCropWidth" :auto-crop-height="option.autoCropHeight"
+                  :center-box="option.centerBox" :enlarge="2" :high="option.high">
                 </vue-cropper>
                 <div class="btn_cropper">
                   <SvgIcon iconClass="check" @click.native="comfirmEditViewer" class="btn_cropper_check"></SvgIcon>
@@ -177,7 +177,7 @@
         default_img: '',
         default_img_blob: '',
         //用户上传的图集小类预览图
-        default_viewer_blob:[],
+        default_viewer_blob: [],
         default_viewer: [],
         // 上传图片是否展示
         upload_visible: false,
@@ -262,7 +262,7 @@
             if (this.girlDataType === 2) {
               // 小类新增
               formData.append('galleryId', galleryId)
-              for(let item of this.default_viewer_blob){
+              for (let item of this.default_viewer_blob) {
                 formData.append('viewerfile', item.data, item.imgName)
               }
             }
@@ -294,14 +294,14 @@
               // 小类修改
               formData.append('galleryId', this.girlData.gallery_id)
               formData.append('galleryItemId', this.girlData.gallery_item_id)
-              for(let item of this.default_viewer_blob){
+              for (let item of this.default_viewer_blob) {
                 formData.append('viewerfile', item.data, item.imgName)
               }
               //之前上传的预览图列表<修改过> 用于后端判断是否逻辑删除 
-              for(let i=0;i<this.girlViewerDataLocal.length;i++){
-                for(let key in this.girlViewerDataLocal[i]){
+              for (let i = 0; i < this.girlViewerDataLocal.length; i++) {
+                for (let key in this.girlViewerDataLocal[i]) {
                   //假设这个数组对应的字段为box
-                  formData.append(`girlViewerLoaclImg[${i}][${key}]`,this.girlViewerDataLocal[i][key])          
+                  formData.append(`girlViewerLoaclImg[${i}][${key}]`, this.girlViewerDataLocal[i][key])
                 }
               }
             }
@@ -405,7 +405,7 @@
         }
       },
       //删除用户新上传的预览图
-      removeNewViewerImg(param){
+      removeNewViewerImg(param) {
         let tempList = this.default_viewer.filter(item => {
           return item.imgName != param.imgName
         })
@@ -448,29 +448,29 @@
       },
       //关闭小类预览图上传界面
       closeEditViewer() {
-          new Promise((resolve, reject) => {
-            this.option.imgViewer = ''
-            this.$refs.cropper_viewer.clearCrop()
-            resolve()
-          }).then(() => {
-            this.user_modify_viewer = false
-          })
+        new Promise((resolve, reject) => {
+          this.option.imgViewer = ''
+          this.$refs.cropper_viewer.clearCrop()
+          resolve()
+        }).then(() => {
+          this.user_modify_viewer = false
+        })
       },
-      comfirmEditViewer(){
+      comfirmEditViewer() {
         this.user_modify_viewer = false
         const viewerImgName = `${uuid()}.png`
         // 预览用
         const that = this
         this.$refs.cropper_viewer.getCropData((data) => {
           that.default_viewer.push({
-            imgName:viewerImgName,
+            imgName: viewerImgName,
             data
           })
         })
         // 上传用
         this.$refs.cropper_viewer.getCropBlob((data) => {
           that.default_viewer_blob.push({
-            imgName:viewerImgName,
+            imgName: viewerImgName,
             data
           })
         })
