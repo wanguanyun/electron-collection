@@ -158,7 +158,6 @@
       handleAdding(param) {
         this.handleAddingLoading = true
         addGirl(param).then(res => {
-          console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
           // 关闭弹窗
@@ -178,7 +177,6 @@
       handlemodifying(param) {
         this.handleAddingLoading = true
         modifyGirl(param).then(res => {
-          console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
           // 关闭弹窗

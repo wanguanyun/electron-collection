@@ -275,14 +275,16 @@
       },
       // 编辑小姐姐 提交
       handleModify() {
-        console.log(this.girlViewerDataLocal)
-        console.log(this.default_viewer_blob)
         this.$refs['addGirlForm'].validate((valid) => {
           if (valid) {
             var formData = new FormData()
             formData.append('title', this.addGirlForm.title)
             formData.append('type', this.addGirlForm.type)
             formData.append('netAddress', this.addGirlForm.netAddress)
+            const re = new RegExp('\\\\', 'g')
+            if(this.addGirlForm.localAddress.toString().split("\\\\\\\\").length === 1){
+              this.addGirlForm.localAddress = this.addGirlForm.localAddress.replace(re, '\\\\\\\\') || ''
+            }
             formData.append('localAddress', this.addGirlForm.localAddress)
             formData.append('rank', this.addGirlForm.rank)
             formData.append('tags', this.addGirlForm.dynamicTags.join(','))
@@ -395,7 +397,6 @@
       },
       //删除预览图
       removeViewerImg(param) {
-        console.log(param)
         let tempList = this.girlViewerDataLocal.filter(item => {
           return item.img_id != param.img_id
         })

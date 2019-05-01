@@ -2,10 +2,10 @@
   <el-col class="girl-item" :xs="12" :sm="6" :md="6" :lg="4" :xl="4">
     <el-card shadow="always" :body-style="{ padding: '0px' }">
       <div class="girl-box" @click="handleGirlitems">
-        <img v-if="girlDataType === 1"
-          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" class="girl-image">
-        <img v-if="girlDataType === 2"
-          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" class="girl-image">
+         <el-image  style="width: 100%;" v-if="girlDataType === 1"
+          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" fit="cover"></el-image>
+         <el-image  style="width: 100%;" v-if="girlDataType === 2"
+          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" fit="cover"></el-image>
         <span v-text="girlData.gallery_name"></span>
         <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite"
           :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
@@ -57,7 +57,6 @@
   export default {
     name: 'girlsitem',
     created() {
-      console.log(this.girlData)
     },
     components: {
       SvgIcon
@@ -99,7 +98,6 @@
       },
       // 是否设为最爱
       handleFavourite() {
-        console.log(this.girlData)
         this.$emit('set-favourite', this.girlData)
       },
       // 修改小姐姐信息

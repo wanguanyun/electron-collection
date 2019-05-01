@@ -178,7 +178,6 @@
       handleAdding(param) {
         this.handleAddingLoading = true
         addGirlitem(param).then(res => {
-          console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
           // 关闭弹窗
@@ -198,7 +197,6 @@
       handlemodifying(param) {
         this.handleAddingLoading = true
         modifyGirlitem(param).then(res => {
-          console.log(res)
           // 新增按钮loading结束
           this.handleAddingLoading = false
           // 关闭弹窗
@@ -270,7 +268,6 @@
           galleryId: this.$route.params.id
         }).then(res => {
           loading.close()
-          console.log(res)
           if (res.code === 200) {
             this.total = res.data.total
             for (let i = 0; i < res.data.rows.length; i++) {
