@@ -452,6 +452,7 @@
         new Promise((resolve, reject) => {
           this.option.imgViewer = ''
           this.$refs.cropper_viewer.clearCrop()
+          this.$refs.uploadsViewer.value = null
           resolve()
         }).then(() => {
           this.user_modify_viewer = false
@@ -475,6 +476,7 @@
             data
           })
         })
+        this.$refs.uploadsViewer.value = null
       }
     }
   }
