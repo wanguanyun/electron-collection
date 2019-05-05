@@ -77,7 +77,7 @@
             this.gallerytype = '1'
           } else if (this.$route.name == '图集') {
             this.gallerytype = '2'
-          } else if (this.$route.name == 'COS') {
+          } else if (this.$route.name == '其他') {
             this.gallerytype = '3'
           }
           this.fetchData()
@@ -90,7 +90,7 @@
         this.gallerytype = '1'
       } else if (this.$route.name == '图集') {
         this.gallerytype = '2'
-      } else if (this.$route.name == 'COS') {
+      } else if (this.$route.name == '其他') {
         this.gallerytype = '3'
       }
       this.fetchData()

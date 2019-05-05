@@ -151,9 +151,9 @@
                         <div class="user-detail">
                             <el-tag type="info">我就是我是不一样的烟火</el-tag>
                             <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
-                            <el-tag type="warning">已发布文章21篇</el-tag>
-                            <el-tag type="warning">已收录30位小姐姐</el-tag>
-                            <el-tag type="warning">上传图片123张(占用203MB)</el-tag>
+                            <el-tag type="warning">已发布文章 {{gallery_item_count}} 篇</el-tag>
+                            <el-tag type="warning">已收录 {{gallery_count}} 位小姐姐</el-tag>
+                            <el-tag type="warning">上传图片 {{img_total_count}} 张(占用 {{img_total_size}} MB)</el-tag>
                             <el-tag type="danger">我是有底线的</el-tag>
                         </div>
                         <div class="user-operation">
@@ -177,7 +177,8 @@
     import {
       modifyAvatar,
       modifyCover,
-      modifyItemCover
+      modifyItemCover,
+      getProjectInfo
     } from '@/api/setting'
     export default {
       data() {
@@ -190,6 +191,10 @@
           cropper_visible: false,
           cropper_visible2: false,
           cropper_visible3: false,
+          gallery_count:0,
+          gallery_item_count:0,
+          img_total_count:0,
+          img_total_size:0,
           option: {
             img: '',
             imgCover: '',
@@ -230,7 +235,14 @@
 
       },
       created() {
+        getProjectInfo().then(res => {
+          this.gallery_count = res.data.gallery_count
+          this.gallery_item_count = res.data.gallery_item_count
+          this.img_total_count = res.data.img_total_count
+          this.img_total_size = res.data.img_total_size?(parseFloat(res.data.img_total_size)/1048576).toFixed(2):0
+        }).catch(() => {
 
+        })
       },
       mounted() {
         this.user_info_visible = true

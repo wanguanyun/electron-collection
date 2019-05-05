@@ -88,7 +88,7 @@
               <el-select v-model="addGirlForm.type" placeholder="请选择">
                 <el-option label="福利姬" :value="1"></el-option>
                 <el-option label="图集" :value="2"></el-option>
-                <el-option label="COS" :value="3"></el-option>
+                <el-option label="其他" :value="3"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="网络地址配置" prop="netAddress">
@@ -477,6 +477,7 @@
           })
         })
         this.$refs.uploadsViewer.value = null
+        this.option.imgViewer = ''
       }
     }
   }

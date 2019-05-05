@@ -71,10 +71,10 @@ export const constantRouterMap = [
         meta: { title: '图集', icon: 'net' }
       },
       {
-        path: 'cos',
-        name: 'COS',
+        path: 'other',
+        name: '其他',
         component: () => import('@/views/collection/girls'),
-        meta: { title: 'COS', icon: 'net' }
+        meta: { title: '其他', icon: 'net' }
       }
     ]
   },

@@ -23,3 +23,10 @@ export function modifyItemCover(params) {
     data: params
   })
 }
+
+export function getProjectInfo() {
+  return request({
+    url: '/setting/project/info',
+    method: 'get'
+  })
+}
