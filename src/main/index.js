@@ -46,7 +46,10 @@ function createWindow() {
   // 系统托盘右键菜单
   var trayMenuTemplate = [{
     label: '设置',
-    click: function() {} // 打开相应页面
+    click: function() {
+      mainWindow.show()
+      mainWindow.webContents.send('goSetting')
+    } // 打开相应页面
   },
   {
     label: '帮助',
