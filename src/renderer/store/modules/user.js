@@ -12,7 +12,9 @@ const user = {
     defaule_cover: '',
     // 默认封面<小类>
     defaule_item_cover: '',
-    last_login_time: ''
+    last_login_time: '',
+    //默认模式为正常模式 1：正常 2：隐私模式
+    app_module:1
   },
 
   mutations: {
@@ -36,6 +38,9 @@ const user = {
     },
     SET_LAST_LOGIN_TIME: (state, time) => {
       state.last_login_time = time
+    },
+    SET_APP_MODULE: (state,appModule) => {
+      state.app_module = appModule
     }
   },
 
@@ -53,6 +58,7 @@ const user = {
           commit('SET_DEFAULT_COVER', data.gallery_img)
           commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
           commit('SET_LAST_LOGIN_TIME', data.last_login_time)
+          commit('SET_APP_MODULE',data.app_module)
           resolve()
         }).catch(error => {
           reject(error)
@@ -75,6 +81,7 @@ const user = {
           commit('SET_DEFAULT_COVER', data.gallery_img)
           commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
           commit('SET_LAST_LOGIN_TIME', data.last_login_time)
+          commit('SET_APP_MODULE',data.app_module)
           resolve(response)
         }).catch(error => {
           reject(error)

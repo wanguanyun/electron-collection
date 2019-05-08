@@ -8,6 +8,7 @@ const getters = {
   defaule_cover: state => state.user.defaule_cover,
   defaule_item_cover: state => state.user.defaule_item_cover,
   last_login_time: state => state.user.last_login_time,
+  app_module: state => state.user.app_module,
   girlInfo: state => state.setting.girlInfo
 }
 export default getters

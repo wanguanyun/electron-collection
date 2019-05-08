@@ -30,3 +30,11 @@ export function getProjectInfo() {
     method: 'get'
   })
 }
+
+export function modifyAppModule(params) {
+  return request({
+    url: '/setting/modify/appmodule',
+    method: 'post',
+    data: params
+  })
+}

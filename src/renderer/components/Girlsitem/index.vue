@@ -3,10 +3,10 @@
     <el-card shadow="always" :body-style="{ padding: '0px' }">
       <div class="girl-box" @click="handleGirlitems">
          <el-image  style="width: 100%;" v-if="girlDataType === 1"
-          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" fit="cover"></el-image>
+          :src="girlData.img_name && app_module === 1?`${Base_url}/img/${girlData.img_name}`:`${defaule_cover}`" fit="cover"></el-image>
          <el-image  style="width: 100%;" v-if="girlDataType === 2"
-          :src="girlData.img_name?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" fit="cover"></el-image>
-        <span v-text="girlData.gallery_name"></span>
+          :src="girlData.img_name && app_module === 1?`${Base_url}/img/${girlData.img_name}`:`${defaule_item_cover}`" fit="cover"></el-image>
+        <span v-text="app_module === 1?girlData.gallery_name:'猜猜我是谁？'"></span>
         <SvgIcon v-if="girlDataType === 2" @click.native="handleFavourite"
           :iconClass="girlData.if_favourite===1?'favourite':'unfavourite'" class="icon-favourite"></SvgIcon>
         <p v-if="girlDataType === 2" class="icon-more" @click="moreViewer">更多预览<SvgIcon iconClass="pull_right"
@@ -17,14 +17,14 @@
           <ul>
             <li v-if="item" :title="item" :key="index"
               v-for="(item,index) in (girlData.gallery_item_names?girlData.gallery_item_names:'').split(',')">
-              {{index+1}}、{{item}}</li>
+              {{index+1}}、{{app_module === 1?item:'猜猜我是谁？'}}</li>
           </ul>
         </div>
       </div>
       <div class="clearfix" style="padding: 5px;position:relative">
         <div class="girl-tags clearfix">
           <el-tag v-if="item" v-for="(item,index) in girlData.gallery_tag.split(',')" :key="index"
-            :color="color[index%5]" @click="handleTagSearch(item)" size="mini" type="info">{{item}}</el-tag>
+            :color="color[index%5]" @click="handleTagSearch(item)" size="mini" type="info">{{app_module === 1?item:'标签'}}</el-tag>
         </div>
         <div class="mt20 clearfix">
           <div class="girl-rank clearfix">
@@ -69,7 +69,8 @@
       },
       ...mapGetters([
         'defaule_cover',
-        'defaule_item_cover'
+        'defaule_item_cover',
+        'app_module'
       ])
     },
     data() {
