@@ -6,7 +6,7 @@ import responseImg from '../assets/login_img/response_error.gif'
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url
-  timeout: 30000 // 请求超时时间
+  timeout: 40000 // 请求超时时间
 })
 
 // request拦截器

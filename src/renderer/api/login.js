@@ -11,6 +11,16 @@ export function login(username, password) {
   })
 }
 
+export function changePw(param) {
+  return request({
+    url: '/users/changepw',
+    method: 'post',
+    data: {
+      ...param
+    }
+  })
+}
+
 export function getInfo(token) {
   return request({
     url: '/users/info',

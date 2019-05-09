@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, logout, getInfo, changePw } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -50,6 +50,31 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
+          const data = response.data
+          setToken(data.token)
+          commit('SET_TOKEN', data.token)
+          commit('SET_AVATAR', data.default_avatar)
+          commit('SET_NAME', data.userName)
+          commit('SET_DEFAULT_COVER', data.gallery_img)
+          commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
+          commit('SET_LAST_LOGIN_TIME', data.last_login_time)
+          commit('SET_APP_MODULE',data.app_module)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    
+    //修改用户密码
+    ChangePw({ commit },param){
+      const oldPassword = param.oldPassword.trim()
+      const newPassword = param.newPassword.trim()
+      return new Promise((resolve, reject) => {
+        changePw({
+          oldPassword,
+          newPassword
+        }).then(response => {
           const data = response.data
           setToken(data.token)
           commit('SET_TOKEN', data.token)

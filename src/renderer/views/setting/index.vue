@@ -85,6 +85,7 @@
             <SvgIcon iconClass="attention_forbid_fill" class="user-setting-pic"></SvgIcon>隐私模式设置
           </div>
           <div class="user-config-contant">
+            <div class="app-module-tip">开启隐私模式将会隐藏原有封面、原有标签、原有标题以及详情</div>
             <el-switch v-model="appModule" @change="appModuleChange" :active-value="2" :inactive-value="1"
               active-color="#7f6360" active-text="开启隐私模式">
             </el-switch>
@@ -136,14 +137,42 @@
             </transition>
             <div class="user-detail">
               <el-tag type="info">我就是我是不一样的烟火</el-tag>
-              <el-tag type="success">上次登录日期:{{last_login_time}}</el-tag>
-              <el-tag type="warning">已发布文章 {{gallery_item_count}} 篇</el-tag>
-              <el-tag type="warning">已收录 {{gallery_count}} 位小姐姐</el-tag>
-              <el-tag type="warning">上传图片 {{img_total_count}} 张(占用 {{img_total_size}} MB)</el-tag>
+              <el-tag type="success">上次登录日期:{{appModule === 1?last_login_time:'--'}}</el-tag>
+              <el-tag type="warning">已发布文章 {{appModule === 1?gallery_item_count:'--'}} 篇</el-tag>
+              <el-tag type="warning">已收录 {{appModule === 1?gallery_count:'--'}} 位小姐姐</el-tag>
+              <el-tag type="warning">上传图片 {{appModule === 1?img_total_count:'--'}} 张(占用
+                {{appModule === 1?img_total_size:'--'}} MB)</el-tag>
               <el-tag type="danger">我是有底线的</el-tag>
             </div>
             <div class="user-operation">
-              <el-button type="primary"><i class="el-icon-edit"></i>修改密码</el-button>
+              <transition name="modifyPw" v-on:before-enter="modifyPwBtn_edit_visible = false"
+                v-on:after-enter="modifyPwBtn_comfirm_visible = true"
+                v-on:before-leave="modifyPwBtn_comfirm_visible = false"
+                v-on:after-leave="modifyPwBtn_edit_visible = true">
+                <div class="modifyPw-form" v-if="user_modify_password">
+                  <el-form label-position="right" size="mini" label-width="80px" ref="modifyPw" :model="modifyPw"
+                    :rules="modifyPwRules" :show-message=false>
+                    <el-form-item label="原密码" prop="oldPassword">
+                      <el-input :autofocus=true v-model="modifyPw.oldPassword" auto-complete="off" type="password" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="新密码" prop="newPassword">
+                      <el-input v-model="modifyPw.newPassword" auto-complete="off" type="password" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="重复输入" prop="newPasswordRepeat">
+                      <el-input v-model="modifyPw.newPasswordRepeat" auto-complete="off" type="password" clearable>
+                      </el-input>
+                    </el-form-item>
+                  </el-form>
+                </div>
+              </transition>
+              <div v-show="modifyPwBtn_edit_visible">
+                <el-button @click.native="handleModifyPw" type="primary"><i class="el-icon-edit"></i>修改密码</el-button>
+              </div>
+              <div class="modifyPw-operation" v-show="modifyPwBtn_comfirm_visible">
+                <el-button @click.native="cancelModifyPw" type="primary" icon="el-icon-close" circle></el-button>
+                <el-button @click.native="comfirmModifyPw" type="primary" icon="el-icon-check" circle></el-button>
+              </div>
+
             </div>
           </el-card>
         </transition>
@@ -169,7 +198,27 @@
   } from '@/api/setting'
   export default {
     data() {
+      const validatePass = (rule, value, callback) => {
+        if (value.length < 4) {
+          callback(new Error('密码不能小于4位'))
+        } else {
+          this.$refs.modifyPw.validateField('newPasswordRepeat');
+          callback();
+        }
+      }
+      const validatePass2 = (rule, value, callback) => {
+        if (value.length < 4) {
+          callback(new Error('密码不能小于4位'))
+        } else if (value != this.modifyPw.newPassword) {
+          callback(new Error('两次输入的密码不匹配'))
+        } else {
+          callback()
+        }
+      }
       return {
+        modifyPwBtn_edit_visible: true,
+        modifyPwBtn_comfirm_visible: false,
+        user_modify_password: false,
         user_info_visible: false,
         user_config_one: false,
         user_modify_avatar: false,
@@ -182,6 +231,27 @@
         gallery_item_count: 0,
         img_total_count: 0,
         img_total_size: 0,
+        modifyPw: {
+          oldPassword: '',
+          newPassword: '',
+          newPasswordRepeat: ''
+        },
+        modifyPwRules: {
+          oldPassword: [{
+            required: true,
+            trigger: 'change'
+          }],
+          newPassword: [{
+            required: true,
+            trigger: 'change',
+            validator: validatePass
+          }],
+          newPasswordRepeat: [{
+            required: true,
+            trigger: 'change',
+            validator: validatePass2
+          }]
+        },
         option: {
           img: '',
           imgCover: '',
@@ -245,6 +315,39 @@
       this.user_config_one = true
     },
     methods: {
+      //取消修改用户密码
+      cancelModifyPw() {
+        this.$refs.modifyPw.resetFields();
+        this.modifyPwBtn_visible = false;
+        this.user_modify_password = false;
+      },
+      comfirmModifyPw() {
+        this.$refs.modifyPw.validate(valid => {
+          if (valid) {
+            this.$store
+              .dispatch('ChangePw', this.modifyPw)
+              .then((res) => {
+                this.$notify({
+                  title: 'success',
+                  message: '修改成功',
+                  type: 'success'
+                })
+                this.$refs.modifyPw.resetFields();
+                this.user_modify_password = false
+              })
+              .catch(() => {
+              })
+          } else {
+            console.log('error submit!!')
+            return false
+          }
+        })
+      },
+      //点击修改用户密码
+      handleModifyPw() {
+        this.user_modify_password = true
+
+      },
       //修改app隐私模式
       appModuleChange() {
         modifyAppModule({
@@ -495,6 +598,44 @@
       padding: 10px;
     }
 
+    .user-operation {
+      .el-form-item__label {
+        font-size: 13px;
+        padding: 6px 12px 0 0;
+      }
+
+      .el-form-item {
+        margin-bottom: 0;
+      }
+
+      .el-button {
+        margin-top: 10px;
+      }
+
+      .modifyPw-operation {
+        .el-button {
+          padding: 0;
+        }
+
+        .is-circle {
+          padding: 7px;
+        }
+      }
+    }
+
+    .el-input__inner,
+    .el-textarea__inner {
+      width: 100% !important;
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+      font-size: 13px;
+      overflow-y: hidden;
+      height: 30px;
+      line-height: 30px;
+    }
+
     .el-switch {
       margin-top: 10px;
     }
@@ -599,6 +740,11 @@
 
       & .user-config-contant {
         padding: 5px 0;
+
+        .app-module-tip {
+          margin-top: 10px;
+          color: #E6A23C;
+        }
 
         & .post-title {
           position: absolute;
@@ -846,6 +992,14 @@
       }
     }
 
+    .modifyPw-enter-active {
+      animation: showModifyPw 0.5s linear forwards;
+    }
+
+    .modifyPw-leave-active {
+      animation: showModifyPw 0.5s linear forwards reverse;
+    }
+
     .editAvatar-enter-active {
       animation: showEditAvatar 0.5s linear forwards;
     }
@@ -863,6 +1017,7 @@
     .user-operation {
       padding-top: 10px;
       text-align: center;
+      padding-right: 5px;
     }
 
 
@@ -879,6 +1034,23 @@
 
       100% {
         height: 150px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes showModifyPw {
+      0% {
+        height: 0px;
+        opacity: 0;
+      }
+
+      50% {
+        height: 55px;
+        opacity: 0;
+      }
+
+      100% {
+        height: 110px;
         opacity: 1;
       }
     }
