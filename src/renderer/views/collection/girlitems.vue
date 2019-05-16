@@ -10,9 +10,9 @@
         </el-form-item>
         <el-form-item label="展示排序">
           <el-select v-model="formInline.querysort" placeholder="展示排序">
-            <el-option label="标题首字母" value="1"></el-option>
-            <el-option label="推荐星级" value="2"></el-option>
-            <el-option label="修改时间" value="3"></el-option>
+            <el-option @click.native="handleSearch" label="标题首字母" value="1"></el-option>
+            <el-option @click.native="handleSearch" label="推荐星级" value="2"></el-option>
+            <el-option @click.native="handleSearch" label="修改时间" value="3"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -26,9 +26,9 @@
     </el-row>
     <div ref="girls_container" class="clearfix">
       <transition-group tag="div" enter-active-class="animated fadeIn">
-        <Girlsitem @more-item-viewer="showMoreItemViewer" @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn"
-          @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists" :key="index" :girl-data="item"
-          :girl-data-type="2"></Girlsitem>
+        <Girlsitem @more-item-viewer="showMoreItemViewer" @set-favourite="handelFavourite" @tag-search="handleTagSearch"
+          @delete-girl-data="deleteGirlbtn" @move-girl-data="moveGirlData" @modify-girl-data="modifyGirlbtn"
+          v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
       </transition-group>
     </div>
 
@@ -38,11 +38,12 @@
       </el-pagination>
     </el-row>
 
-    <el-dialog :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit" :visible.sync="dialogVisible"
-      width="60%">
+    <el-dialog :close-on-click-modal="false" :title="addModifyButton=='add'?'添加小姐姐':'编辑小姐姐'" @close="addGirlInit"
+      :visible.sync="dialogVisible" width="60%">
       <transition name="upload" enter-active-class="animated fadeIn" leave-active-class="animated fadeOutLeft">
-        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-viewer-data="modifyGirlItemViewers" :girl-data-type="2" ref="girlsupload"
-          @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
+        <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-viewer-data="modifyGirlItemViewers"
+          :girl-data-type="2" ref="girlsupload" @modify-girl-data="handlemodifying" @add-girl-data="handleAdding">
+        </Girlsupload>
       </transition>
       <span slot="footer">
         <el-button size="mini" type="info" @click="dialogVisible = false">取 消</el-button>
@@ -50,6 +51,23 @@
           @click="handleAdd">新 增</el-button>
         <el-button v-if="addModifyButton=='modify'" size="mini" type="primary" :loading="handleAddingLoading"
           @click="handleModify">修 改</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="合并小姐姐" :close-on-click-modal="false" @close="combineGirlId = '';handleCombineLoading = false;"
+      :visible.sync="dialogVisible2" width="35%">
+      <div>
+        <span class="dialogTip">请选择需要合并到的图集大类</span>
+        <el-select class="girlName" v-model="combineGirlId" filterable clearable placeholder="请选择">
+          <el-option-group v-for="group in girlCombineLists" :key="group.label" :label="group.label">
+            <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-option-group>
+        </el-select>
+      </div>
+      <span slot="footer">
+        <el-button size="mini" type="primary" :disabled="combineGirlId == '' || !combineGirlId"
+          :loading="handleCombineLoading" @click="handleCombine">移  动</el-button>
       </span>
     </el-dialog>
     <div class="images" style="display:none;" v-viewer="{movable: false}">
@@ -70,7 +88,9 @@
     modifyGirlitem,
     deleteGirlitem,
     setGirlitemFavourite,
-    getGirlItemViewers
+    getGirlItemViewers,
+    getGirlCombineLists,
+    moveGirlItem
   } from '@/api/girl'
 
   export default {
@@ -99,9 +119,13 @@
       return {
         // 点击添加按钮loading
         handleAddingLoading: false,
+        //合并图集按钮loading
+        handleCombineLoading: false,
         // 新增/编辑按钮切换 add/modify
         addModifyButton: '',
         dialogVisible: false,
+        //合并小姐姐弹窗
+        dialogVisible2: false,
         formInline: {
           queryname: '',
           querysort: '1'
@@ -112,9 +136,26 @@
         pagesize: 12,
         // 需要编辑的Girlsitem数据
         modifyGirlData: [],
+        //需要移动的Girlitem数据
+        moveGirlItemData:null,
         //girlItem的预览图
-        modifyGirlItemViewers:[],
-        images: []
+        modifyGirlItemViewers: [],
+        images: [],
+        //需要合并的大类名称
+        combineGirlId: '',
+        //合并图集的下拉框数据
+        girlCombineLists: [{
+            label: '福利姬',
+            options: []
+          }, {
+            label: '图集',
+            options: []
+          },
+          {
+            label: '其他',
+            options: []
+          }
+        ],
       }
     },
     methods: {
@@ -124,10 +165,10 @@
         //实时获取图集小类的图片预览集
         this.modifyGirlItemViewers = []
         getGirlItemViewers(param).then(res => {
-          for(let item of res.data){
+          for (let item of res.data) {
             this.modifyGirlItemViewers.push(item)
           }
-        }).catch(()=>{})
+        }).catch(() => {})
         // 打开编辑弹窗
         this.dialogVisible = true
       },
@@ -164,6 +205,72 @@
             this.$set(this.girlLists, index, this.girlLists[index])
           }
         }).catch(() => {})
+      },
+      //移动图集小类
+      moveGirlData(param) {
+        this.moveGirlItemData = param
+        //合并图集小类归属
+        this.dialogVisible2 = true
+        //查询图集大类列表
+        getGirlCombineLists({
+          galleryId: param.gallery_id
+        }).then(res => {
+          console.log(res)
+          for (let type of this.girlCombineLists) {
+            //初始化清空
+            type.options = []
+            for (let item of res.data) {
+              if (type.label === '福利姬' && item.gallery_type == 1) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+              if (type.label === '图集' && item.gallery_type == 2) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+              if (type.label === '其他' && item.gallery_type == 3) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+            }
+          }
+        }).catch(() => {
+          this.$notify({
+            title: '错误！',
+            message: res.data,
+            type: 'warning'
+          })
+          return;
+        })
+
+      },
+      handleCombine() {
+        this.handleCombineLoading = true
+        if (this.combineGirlId) {
+          moveGirlItem({
+            ...this.moveGirlItemData,
+            combineGirlId: this.combineGirlId
+          }).then(res => {
+            // 关闭弹窗
+            this.handleCombineLoading = false
+            this.dialogVisible2 = false
+            this.$notify({
+              title: '成功',
+              message: res.data,
+              type: 'success'
+            })
+            // 获取列表数据
+            this.fetchData()
+          }).catch(() => {
+            this.handleCombineLoading = false
+          })
+        }
       },
       // 确认添小姐姐按钮点击
       handleAdd() {
@@ -237,18 +344,18 @@
         this.fetchData()
       },
       //展示图集小类更多图片预览
-      showMoreItemViewer(param){
+      showMoreItemViewer(param) {
         let that = this
         this.images = []
         getGirlItemViewers(param).then(res => {
-          for(let item of res.data){
-            that.images.push(that.Base_url + '/img/'+item.img_name)
+          for (let item of res.data) {
+            that.images.push(that.Base_url + '/img/' + item.img_name)
           }
-          setTimeout(()=>{
+          setTimeout(() => {
             const viewer = that.$el.querySelector('.images').$viewer
             viewer.show()
-          },200)
-        }).catch(()=>{})
+          }, 200)
+        }).catch(() => {})
       },
       // 获取列表数据
       fetchData() {
@@ -307,6 +414,25 @@
       border-right: 0;
       border-radius: 0;
       font-size: 14px;
+    }
+
+    .combine-girl-check {
+      .el-checkbox__label {
+        font-size: 16px;
+        color: #7f6360;
+      }
+
+      .el-checkbox__input.is-checked+.el-checkbox__label {
+        color: red;
+      }
+    }
+
+    .girlName {
+      .el-input__inner {
+        width: 190px;
+        color: #7f6360;
+        font-size: 18px;
+      }
     }
 
     .el-form-item__label {
@@ -421,6 +547,11 @@
     &-item-container {
       padding: 20px 25px 20px 20px;
       overflow-y: scroll;
+
+      .dialogTip {
+        font-size: 18px;
+        color: #E6A23C;
+      }
     }
 
     &-text {

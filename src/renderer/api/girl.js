@@ -101,3 +101,23 @@ export function getGirlItemViewers(params) {
     }
   })
 }
+
+export function getGirlCombineLists(params) {
+  return request({
+    url: '/girl/gallery/combine/list',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
+export function moveGirlItem(params) {
+  return request({
+    url: '/girl/move/item',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}

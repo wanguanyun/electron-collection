@@ -80,17 +80,19 @@
             </div>
           </el-card>
         </transition>
-        <el-card class="box-card" shadow="hover">
-          <div class="user-config-title">
-            <SvgIcon iconClass="attention_forbid_fill" class="user-setting-pic"></SvgIcon>隐私模式设置
-          </div>
-          <div class="user-config-contant">
-            <div class="app-module-tip">开启隐私模式将会隐藏原有封面、原有标签、原有标题以及详情</div>
-            <el-switch v-model="appModule" @change="appModuleChange" :active-value="2" :inactive-value="1"
-              active-color="#7f6360" active-text="开启隐私模式">
-            </el-switch>
-          </div>
-        </el-card>
+        <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
+          <el-card class="box-card" shadow="hover" v-if="user_config_one">
+            <div class="user-config-title">
+              <SvgIcon iconClass="attention_forbid_fill" class="user-setting-pic"></SvgIcon>隐私模式设置
+            </div>
+            <div class="user-config-contant">
+              <div class="app-module-tip">开启隐私模式将会隐藏原有封面、原有标签、原有标题以及详情</div>
+              <el-switch v-model="appModule" @change="appModuleChange" :active-value="2" :inactive-value="1"
+                active-color="#7f6360" active-text="开启隐私模式">
+              </el-switch>
+            </div>
+          </el-card>
+        </transition>
         <el-card class="box-card" shadow="hover">
           <div class="user-config-title"></div>
         </el-card>
@@ -153,7 +155,8 @@
                   <el-form label-position="right" size="mini" label-width="80px" ref="modifyPw" :model="modifyPw"
                     :rules="modifyPwRules" :show-message=false>
                     <el-form-item label="原密码" prop="oldPassword">
-                      <el-input :autofocus=true v-model="modifyPw.oldPassword" auto-complete="off" type="password" clearable></el-input>
+                      <el-input :autofocus=true v-model="modifyPw.oldPassword" auto-complete="off" type="password"
+                        clearable></el-input>
                     </el-form-item>
                     <el-form-item label="新密码" prop="newPassword">
                       <el-input v-model="modifyPw.newPassword" auto-complete="off" type="password" clearable></el-input>
@@ -172,7 +175,6 @@
                 <el-button @click.native="cancelModifyPw" type="primary" icon="el-icon-close" circle></el-button>
                 <el-button @click.native="comfirmModifyPw" type="primary" icon="el-icon-check" circle></el-button>
               </div>
-
             </div>
           </el-card>
         </transition>
@@ -335,8 +337,7 @@
                 this.$refs.modifyPw.resetFields();
                 this.user_modify_password = false
               })
-              .catch(() => {
-              })
+              .catch(() => {})
           } else {
             console.log('error submit!!')
             return false

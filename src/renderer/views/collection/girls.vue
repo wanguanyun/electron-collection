@@ -1,15 +1,15 @@
 <template>
   <div class="girls-container">
     <el-row type="flex" justify="left">
-      <el-form :inline="true" :model="formInline" size="mini">
+      <el-form :inline="true" size="mini">
         <el-form-item label="检索">
-          <el-input v-model="formInline.queryname" clearable placeholder="标题 / 标签"></el-input>
+          <el-input v-model="queryname" clearable placeholder="标题 / 标签"></el-input>
         </el-form-item>
         <el-form-item label="展示排序">
-          <el-select v-model="formInline.querysort" placeholder="展示排序">
-            <el-option label="标题首字母" value="1"></el-option>
-            <el-option label="推荐星级" value="2"></el-option>
-            <el-option label="修改时间" value="3"></el-option>
+          <el-select v-model="querysort" placeholder="展示排序">
+            <el-option @click.native="handleSearch" label="标题首字母" value="1"></el-option>
+            <el-option @click.native="handleSearch" label="推荐星级" value="2"></el-option>
+            <el-option @click.native="handleSearch" label="修改时间" value="3"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -24,7 +24,8 @@
     <div ref="girls_container" class="clearfix">
       <transition-group tag="div" enter-active-class="animated fadeIn">
         <Girlsitem @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn" @modify-girl-data="modifyGirlbtn"
-          v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="1"></Girlsitem>
+          @merge-girl-data="mergeGirlData" v-for="(item,index) in girlLists" :key="index" :girl-data="item"
+          :girl-data-type="1"></Girlsitem>
       </transition-group>
     </div>
 
@@ -34,7 +35,8 @@
     </el-pagination>
     <!-- </el-row> -->
 
-    <el-dialog title="添加小姐姐" @close="addGirlInit" :visible.sync="dialogVisible" width="60%">
+    <el-dialog title="添加小姐姐" :close-on-click-modal="false" @close="addGirlInit" :visible.sync="dialogVisible"
+      width="60%">
       <transition name="upload" enter-active-class="animated fadeIn" leave-active-class="animated fadeOutLeft">
         <Girlsupload v-if="dialogVisible" :girl-data="modifyGirlData" :girl-data-type="1" ref="girlsupload"
           @modify-girl-data="handlemodifying" @add-girl-data="handleAdding"></Girlsupload>
@@ -48,6 +50,25 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="合并小姐姐" :close-on-click-modal="false" @close="combineGirlId = '';handleCombineLoading = false;"
+      :visible.sync="dialogVisible2" width="35%">
+      <el-checkbox v-if="!girlCheck" class="combine-girl-check" v-model="combineGirlCheck" label="丢弃小类(将连带大类一并删除)">
+      </el-checkbox>
+      <div v-show="!combineGirlCheck">
+        <span class="dialogTip">请选择需要合并到的图集大类</span>
+        <el-select class="girlName" v-model="combineGirlId" filterable clearable placeholder="请选择">
+          <el-option-group v-for="group in girlCombineLists" :key="group.label" :label="group.label">
+            <el-option v-for="item in group.options" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-option-group>
+        </el-select>
+      </div>
+      <span slot="footer">
+        <el-button size="mini" type="primary" :disabled="(combineGirlId == '' || !combineGirlId) && !combineGirlCheck"
+          :loading="handleCombineLoading" @click="handleCombine">合 并</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -58,7 +79,8 @@
     getGirls,
     addGirl,
     modifyGirl,
-    deleteGirl
+    deleteGirl,
+    getGirlCombineLists
   } from '@/api/girl'
 
   export default {
@@ -98,26 +120,70 @@
     computed: {
       Base_url() {
         return process.env.BASE_API
-      }
+      },
+      querysort: {
+        get: function () {
+          return this.$store.state.setting.querysort
+        },
+        set: function (v) {
+          this.$store.commit('SET_QUERYSORT', v)
+        }
+      },
+      queryname: {
+        get: function () {
+          return this.$store.state.setting.queryname
+        },
+        set: function (v) {
+          this.$store.commit('SET_QUERYNAME', v)
+        }
+      },
+      currentpage: {
+        get: function () {
+          return this.$store.state.setting.currentpage
+        },
+        set: function (v) {
+          this.$store.commit('SET_CURRENTPAGE', v)
+        }
+      },
     },
     data() {
       return {
         // 点击添加按钮loading
         handleAddingLoading: false,
+        //合并图集按钮loading
+        handleCombineLoading: false,
         // 新增/编辑按钮切换 add/modify
         addModifyButton: '',
         gallerytype: '',
         dialogVisible: false,
-        formInline: {
-          queryname: '',
-          querysort: '1'
-        },
+        //合并小姐姐弹窗
+        dialogVisible2: false,
+        //需要合并的大类名称
+        combineGirlId: '',
         girlLists: [],
         total: 0,
-        currentpage: 1,
         pagesize: 12,
         // 需要编辑的Girlsitem数据
-        modifyGirlData: []
+        modifyGirlData: [],
+        //需要删除/合并的girl数据
+        deleteGirlData: null,
+        //连带小类一并删除
+        combineGirlCheck: false,
+        //图集大类合并操作 true 或者 删除图集大类操作 false
+        girlCheck: false,
+        //合并图集的下拉框数据
+        girlCombineLists: [{
+            label: '福利姬',
+            options: []
+          }, {
+            label: '图集',
+            options: []
+          },
+          {
+            label: '其他',
+            options: []
+          }
+        ],
       }
     },
     methods: {
@@ -128,20 +194,51 @@
         this.dialogVisible = true
       },
       deleteGirlbtn(param) {
-        this.$confirm('是否确定删除(将删除包括所有子项), 是否继续?', '嗯???', {
+        this.girlCheck = false
+        this.deleteGirlData = param
+        this.$confirm('是否确定删除, 是否继续?', '嗯???', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteGirl(param).then(res => {
-            // 关闭弹窗
+          //合并图集小类归属
+          this.dialogVisible2 = true
+          //查询图集大类列表
+          getGirlCombineLists({
+            galleryId: param.gallery_id
+          }).then(res => {
+            console.log(res)
+            for (let type of this.girlCombineLists) {
+              //初始化清空
+              type.options = []
+              for (let item of res.data) {
+                if (type.label === '福利姬' && item.gallery_type == 1) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+                if (type.label === '图集' && item.gallery_type == 2) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+                if (type.label === '其他' && item.gallery_type == 3) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+              }
+            }
+          }).catch(() => {
             this.$notify({
-              title: '成功',
+              title: '错误！',
               message: res.data,
-              type: 'success'
+              type: 'warning'
             })
-            // 获取列表数据
-            this.fetchData()
+            return;
           })
         }).catch(() => {})
       },
@@ -153,6 +250,75 @@
       // 确认修改姐姐按钮点击
       handleModify() {
         this.$refs.girlsupload.handleModify()
+      },
+      //合并图集大类 不删除图集大类
+      mergeGirlData(param) {
+        this.girlCheck = true
+        this.deleteGirlData = param
+        //合并图集小类归属
+        this.dialogVisible2 = true
+        //查询图集大类列表
+        getGirlCombineLists({
+          galleryId: param.gallery_id
+        }).then(res => {
+          console.log(res)
+          for (let type of this.girlCombineLists) {
+            //初始化清空
+            type.options = []
+            for (let item of res.data) {
+              if (type.label === '福利姬' && item.gallery_type == 1) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+              if (type.label === '图集' && item.gallery_type == 2) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+              if (type.label === '其他' && item.gallery_type == 3) {
+                type.options.push({
+                  value: item.gallery_id,
+                  label: item.gallery_name
+                })
+              }
+            }
+          }
+        }).catch(() => {
+          this.$notify({
+            title: '错误！',
+            message: res.data,
+            type: 'warning'
+          })
+          return;
+        })
+      },
+      //确认合并按钮点击
+      handleCombine() {
+        this.handleCombineLoading = true
+        if (this.combineGirlCheck || (this.combineGirlId && !this.combineGirlCheck)) {
+          deleteGirl({
+            ...this.deleteGirlData,
+            combineGirlId: this.combineGirlId,
+            combineGirlCheck: this.combineGirlCheck,
+            girlCheck: this.girlCheck
+          }).then(res => {
+            // 关闭弹窗
+            this.handleCombineLoading = false
+            this.dialogVisible2 = false
+            this.$notify({
+              title: '成功',
+              message: res.data,
+              type: 'success'
+            })
+            // 获取列表数据
+            this.fetchData()
+          }).catch(() => {
+            this.handleCombineLoading = false
+          })
+        }
       },
       // 新增-表单校验成功调取新增数据api
       handleAdding(param) {
@@ -205,7 +371,7 @@
       },
       // 点击标签检索
       handleTagSearch(tag) {
-        this.formInline.queryname = tag
+        this.queryname = tag
         this.fetchData()
       },
       // 分页切换事件
@@ -224,7 +390,8 @@
           text: '好急呀....'
         })
         getGirls({
-          ...this.formInline,
+          queryname: this.queryname,
+          querysort: this.querysort,
           currentpage: this.currentpage,
           pagesize: this.pagesize,
           gallerytype: this.gallerytype
@@ -256,6 +423,25 @@
       border-right: 0;
       border-radius: 0;
       font-size: 14px;
+    }
+
+    .combine-girl-check {
+      .el-checkbox__label {
+        font-size: 16px;
+        color: #7f6360;
+      }
+
+      .el-checkbox__input.is-checked+.el-checkbox__label {
+        color: red;
+      }
+    }
+
+    .girlName {
+      .el-input__inner {
+        width: 190px;
+        color: #7f6360;
+        font-size: 18px;
+      }
     }
 
     .el-form-item__label {
@@ -371,6 +557,11 @@
     &-container {
       padding: 20px 25px 20px 20px;
       overflow-y: scroll;
+
+      .dialogTip {
+        font-size: 18px;
+        color: #E6A23C;
+      }
     }
 
     &-text {

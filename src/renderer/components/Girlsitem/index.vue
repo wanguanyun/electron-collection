@@ -40,7 +40,12 @@
               <i v-show="girlData.gallery_net || girlData.gallery_local" slot="reference" class="el-icon-download"></i>
             </el-popover>
             <i v-if="!girlData.gallery_net && !girlData.gallery_local" class="el-icon-download"></i>
-            <i @click="deleteGirlItem" class="el-icon-delete"></i>
+            <el-popover placement="top" :visible-arrow="false" width="80" trigger="hover">
+              <i v-if="girlDataType === 1" @click="mergeGirl" class="el-icon-folder-remove"></i>
+              <i v-if="girlDataType !== 1" @click="moveGirlItem" class="el-icon-folder-remove"></i>
+              <i @click="deleteGirlItem" class="el-icon-delete"></i>
+              <i slot="reference" class="el-icon-menu"></i>
+            </el-popover>
           </div>
         </div>
       </div>
@@ -120,6 +125,16 @@
         //通知父组件打开
         this.$emit('more-item-viewer', this.girlData)
       },
+      //图集大类合并
+      mergeGirl(){
+        //通知父组件打开
+        this.$emit('merge-girl-data', this.girlData)
+      },
+      //移动图集小类
+      moveGirlItem(){
+        // 通知父组件
+        this.$emit('move-girl-data', this.girlData)
+      },
       // 复制网络地址到剪贴板-成功
       onCopy(e) {
         this.$notify({
@@ -157,6 +172,9 @@
     .el-icon-share {
       margin-right: 10px;
     }
+    .el-icon-folder-remove {
+      margin-right: 10px;
+    }
   }
 
   .girl-item {
@@ -177,7 +195,7 @@
       left: 50%;
     }
 
-    .el-icon-delete {
+    .el-icon-menu {
       right: 0%;
     }
   }
