@@ -19,7 +19,9 @@
         </div>
         <el-carousel height="450px">
           <el-carousel-item @click.native="carouselClick(item)" v-for="(item,index) in carousel_lists" :key="index">
-            <el-image style="width: 100%;" :src="item.img_name && app_module === 1?`${Base_url}/img/${item.img_name}`:`${defaule_item_cover}`" fit="cover"></el-image>
+            <el-image style="width: 100%;"
+              :src="item.img_name && app_module === 1?`${Base_url}/img/${item.img_name}`:`${defaule_item_cover}`"
+              fit="cover"></el-image>
           </el-carousel-item>
         </el-carousel>
         <div class="try-button" @click="getDashBoardAllGallery">试试手气</div>
@@ -41,7 +43,7 @@
             <el-tag slot="reference" type="warning">更多<i class="el-icon-arrow-right el-icon--right"></i></el-tag>
           </el-popover>
           <div class="search">
-            <input type="text" v-model="dashboardQuery"/>
+            <input type="text" v-model="dashboardQuery" />
             <a @click="handleTagSearch(dashboardQuery)">搜索</a>
           </div>
         </div>
@@ -51,7 +53,7 @@
       </transition>
       <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
         <div class="tag-photo-list" v-if="animate_visible">
-          <div class="tag-photo-first color1" @click="goAllGallery"><i
+          <div class="tag-photo-first color1" @click="goAllGallery(1)"><i
               class="el-icon-picture"></i><span>所有<br />图集</span></div>
           <el-popover v-for="(item,index) in gallery_item_lists" popper-class="tag-photo-popover" :offset="-30"
             placement="right-start" width="200" trigger="click" :visible-arrow="false">
@@ -73,7 +75,7 @@
       </transition>
       <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
         <div class="tag-photo-list" v-if="animate_visible">
-          <div class="tag-photo-first color2" @click="goAllGallery"><i
+          <div class="tag-photo-first color2" @click="goAllGallery(2)"><i
               class="el-icon-cherry"></i><span>所有<br />大类</span></div>
           <div class="tag-photo" v-for="(item,index) in gallery_lists" @click="goThisGallery(item.gallery_id)">
             <el-image style="width: 100%;"
@@ -168,9 +170,9 @@
         tagList: [],
         gallery_item_lists: [],
         gallery_lists: [],
-        carousel_lists:[],
+        carousel_lists: [],
         images: [],
-        dashboardQuery:'',
+        dashboardQuery: '',
         gallery_count: 0,
         gallery_item_count: 0,
         img_total_count: 0,
@@ -182,54 +184,59 @@
     methods: {
       getDashBoardAllGallery() {
         //获取图集小类列表
-        getHotGalleryItem({
+        let query1 = getHotGalleryItem({
           gallery_item_num: this.default_dashboard_item_number
-        }).then(res => {
+        })
+        //获取图集大类列表
+        let query2 = getHotGallery({
+          gallery_num: this.default_dashboard_number
+        })
+        let query3 = getHotCarouselItem()
+        Promise.all([query1, query2, query3]).then((res) => {
           this.gallery_item_lists = []
-          for (let i = 0; i < res.data.length; i++) {
+          for (let i = 0; i < res[0].data.length; i++) {
             setTimeout(() => {
               this.gallery_item_lists.push({
-                create_time: res.data[i].create_time,
-                gallery_id: res.data[i].gallery_id,
-                gallery_item_id: res.data[i].gallery_item_id,
-                gallery_cover: res.data[i].gallery_item_cover,
-                gallery_del_flag: res.data[i].gallery_item_del_flag,
-                gallery_detail: res.data[i].gallery_item_detail,
-                gallery_local: res.data[i].gallery_item_local,
-                gallery_name: res.data[i].gallery_item_name,
-                gallery_item_name: res.data[i].gallery_name,
-                gallery_net: res.data[i].gallery_item_net,
-                gallery_rank: res.data[i].gallery_item_rank,
-                gallery_tag: res.data[i].gallery_item_tag,
-                img_detail: res.data[i].img_detail,
-                img_id: res.data[i].img_id,
-                img_name: res.data[i].img_name,
-                img_size: res.data[i].img_size,
-                if_favourite: res.data[i].if_favourite
+                create_time: res[0].data[i].create_time,
+                gallery_id: res[0].data[i].gallery_id,
+                gallery_item_id: res[0].data[i].gallery_item_id,
+                gallery_cover: res[0].data[i].gallery_item_cover,
+                gallery_del_flag: res[0].data[i].gallery_item_del_flag,
+                gallery_detail: res[0].data[i].gallery_item_detail,
+                gallery_local: res[0].data[i].gallery_item_local,
+                gallery_name: res[0].data[i].gallery_item_name,
+                gallery_item_name: res[0].data[i].gallery_name,
+                gallery_net: res[0].data[i].gallery_item_net,
+                gallery_rank: res[0].data[i].gallery_item_rank,
+                gallery_tag: res[0].data[i].gallery_item_tag,
+                img_detail: res[0].data[i].img_detail,
+                img_id: res[0].data[i].img_id,
+                img_name: res[0].data[i].img_name,
+                img_size: res[0].data[i].img_size,
+                if_favourite: res[0].data[i].if_favourite
               })
             }, i * 80)
           }
-        }).catch(() => {})
-        //获取图集大类列表
-        getHotGallery({
-          gallery_num: this.default_dashboard_number
-        }).then(res => {
           this.gallery_lists = []
-          for (let i = 0; i < res.data.length; i++) {
+          for (let i = 0; i < res[1].data.length; i++) {
             setTimeout(() => {
-              this.gallery_lists.push(res.data[i])
+              this.gallery_lists.push(res[1].data[i])
             }, i * 80)
           }
-        }).catch(() => {})
-        getHotCarouselItem().then(res => {
-          this.carousel_lists = res.data
+          this.carousel_lists = res[2].data
         }).catch(() => {})
       },
       //所有图集&所有大类跳转
-      goAllGallery() {
-        this.$router.push({
-          name: '福利姬'
-        })
+      goAllGallery(flag) {
+        if (flag == 1) {
+          this.$router.push({
+            name: '所有图集'
+          })
+        } else if (flag == 2) {
+          this.$router.push({
+            name: '福利姬'
+          })
+        }
       },
       //图集大类点击进入所有小类
       goThisGallery(gallerId) {
@@ -241,7 +248,7 @@
         })
       },
       //幻灯片点击事件
-      carouselClick(param){
+      carouselClick(param) {
         this.$router.push({
           name: '详情',
           params: {
@@ -282,7 +289,7 @@
       // 点击标签检索
       handleTagSearch(tag) {
         this.$router.push({
-          name: '福利姬',
+          name: '所有图集',
           params: {
             queryname: tag
           }

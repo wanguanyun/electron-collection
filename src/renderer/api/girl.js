@@ -30,6 +30,16 @@ export function getGirlitems(params) {
   })
 }
 
+export function getAllGirlitems(params) {
+  return request({
+    url: '/girl/main/allitems',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
 export function addGirl(params) {
   return request({
     url: '/girl/add',

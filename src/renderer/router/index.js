@@ -59,6 +59,12 @@ export const constantRouterMap = [
     meta: { title: '所有文件', icon: 'welcome' },
     children: [
       {
+        path: 'all',
+        name: '所有图集',
+        component: () => import('@/views/collection/all'),
+        meta: { title: '所有图集', icon: 'goods' }
+      },
+      {
         path: 'girls',
         name: '福利姬',
         component: () => import('@/views/collection/girls'),
@@ -111,7 +117,7 @@ export const constantRouterMap = [
       {
         path: 'index',
         name: '回收站',
-        component: () => import('@/views/favourite/index'),
+        component: () => import('@/views/recyle/index'),
         meta: { title: '回收站', icon: 'recycle' }
       }
     ]
