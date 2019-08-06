@@ -93,11 +93,25 @@
             </div>
           </el-card>
         </transition>
+        <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
+          <el-card class="box-card" shadow="hover" v-if="user_config_one">
+            <div class="user-config-title">
+              <SvgIcon iconClass="home_setting" class="user-setting-pic"></SvgIcon>首页设置
+            </div>
+            <div class="user-config-contant">
+              <span class="demonstration">推荐图集显示个数(1-20)</span>
+              <el-slider @change="dashboardNumChange" v-model="default_dashboard_item_number" :step="1" :min="1" :max="20" show-stops>
+              </el-slider>
+              <span class="demonstration">推荐福利姬显示个数(1-20)</span>
+              <el-slider @change="dashboardNumChange" v-model="default_dashboard_number" :step="1" :min="1" :max="20" show-stops>
+              </el-slider>
+            </div>
+          </el-card>
+        </transition>
         <el-card class="box-card" shadow="hover">
-          <div class="user-config-title"></div>
-        </el-card>
-        <el-card class="box-card" shadow="hover">
-          <div class="user-config-title"></div>
+          <div class="user-config-title">
+
+          </div>
         </el-card>
       </el-col>
       <el-col :span="5">
@@ -196,7 +210,8 @@
     modifyCover,
     modifyItemCover,
     modifyAppModule,
-    getProjectInfo
+    getProjectInfo,
+    modifyDashboardNumber,
   } from '@/api/setting'
   export default {
     data() {
@@ -204,14 +219,14 @@
         if (value.length < 4) {
           callback(new Error('密码不能小于4位'))
         } else {
-          this.$refs.modifyPw.validateField('newPasswordRepeat');
-          callback();
+          this.$refs.modifyPw.validateField('newPasswordRepeat')
+          callback()
         }
       }
       const validatePass2 = (rule, value, callback) => {
         if (value.length < 4) {
           callback(new Error('密码不能小于4位'))
-        } else if (value != this.modifyPw.newPassword) {
+        } else if (value !== this.modifyPw.newPassword) {
           callback(new Error('两次输入的密码不匹配'))
         } else {
           callback()
@@ -294,6 +309,22 @@
           this.$store.commit('SET_APP_MODULE', v)
         }
       },
+      default_dashboard_item_number: {
+        get: function () {
+          return this.$store.state.user.default_dashboard_item_number
+        },
+        set: function (v) {
+          this.$store.commit('SET_DEFAULT_DASHBOARD_ITEM_NUMBER', v)
+        }
+      },
+      default_dashboard_number: {
+        get: function () {
+          return this.$store.state.user.default_dashboard_number
+        },
+        set: function (v) {
+          this.$store.commit('SET_DEFAULT_DASHBOARD_NUMBER', v)
+        }
+      }
     },
     components: {
       SvgIcon
@@ -317,11 +348,11 @@
       this.user_config_one = true
     },
     methods: {
-      //取消修改用户密码
+      // 取消修改用户密码
       cancelModifyPw() {
-        this.$refs.modifyPw.resetFields();
-        this.modifyPwBtn_visible = false;
-        this.user_modify_password = false;
+        this.$refs.modifyPw.resetFields()
+        this.modifyPwBtn_visible = false
+        this.user_modify_password = false
       },
       comfirmModifyPw() {
         this.$refs.modifyPw.validate(valid => {
@@ -334,7 +365,7 @@
                   message: '修改成功',
                   type: 'success'
                 })
-                this.$refs.modifyPw.resetFields();
+                this.$refs.modifyPw.resetFields()
                 this.user_modify_password = false
               })
               .catch(() => {})
@@ -344,12 +375,11 @@
           }
         })
       },
-      //点击修改用户密码
+      // 点击修改用户密码
       handleModifyPw() {
         this.user_modify_password = true
-
       },
-      //修改app隐私模式
+      // 修改app隐私模式
       appModuleChange() {
         modifyAppModule({
           appModule: this.appModule
@@ -589,6 +619,18 @@
         } else if (type === 2) {
           this.user_modify_item_cover = true
         }
+      },
+      dashboardNumChange(){
+        modifyDashboardNumber({
+          default_dashboard_item_number: this.default_dashboard_item_number,
+          default_dashboard_number:this.default_dashboard_number
+        }).then(res => {
+          this.$notify({
+            title: res.message,
+            message: res.data,
+            type: 'success'
+          })
+        }).catch(() => {})
       }
     }
   }
@@ -705,6 +747,21 @@
     }
   }
 
+  .user-config-contant {
+    .el-slider {
+      width: 300px;
+      display: block;
+    }
+
+    .el-slider__bar {
+      background-color: #7f6360;
+    }
+
+    .el-slider__button {
+      border: 2px solid #7f6360;
+    }
+  }
+
   .user-detail {
     .el-tag {
       display: block;
@@ -741,6 +798,7 @@
 
       & .user-config-contant {
         padding: 5px 0;
+        overflow: hidden;
 
         .app-module-tip {
           margin-top: 10px;
@@ -801,6 +859,14 @@
             }
           }
         }
+
+        .demonstration {
+          font-size: 14px;
+          display: inline-block;
+          height: 20px;
+          line-height: 20px;
+        }
+
       }
 
       & .user-setting-pic {

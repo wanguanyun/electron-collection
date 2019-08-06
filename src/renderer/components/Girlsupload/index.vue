@@ -132,11 +132,11 @@
   export default {
     name: 'girlsupload',
     created() {
-      //重新声明props变量 防止直接修改props变量
+      // 重新声明props变量 防止直接修改props变量
       this.girlViewerDataLocal = this.girlViewerData
-      this.default_img = this.girlData && this.girlData.img_name ?
-        `${this.Base_url}/img/${this.girlData.img_name}` : (this.girlDataType === 1 ? `${this.defaule_cover}` :
-          `${this.defaule_item_cover}`)
+      this.default_img = this.girlData && this.girlData.img_name
+        ? `${this.Base_url}/img/${this.girlData.img_name}` : (this.girlDataType === 1 ? `${this.defaule_cover}`
+          : `${this.defaule_item_cover}`)
       this.addGirlForm.title = this.girlData.gallery_name
       this.addGirlForm.dynamicTags = this.girlData.gallery_tag ? this.girlData.gallery_tag.split(',') : []
       this.addGirlForm.inputVisible = false
@@ -146,7 +146,7 @@
       this.addGirlForm.localAddress = this.girlData.gallery_local ? this.girlData.gallery_local : ''
       this.addGirlForm.rank = this.girlData.gallery_rank ? this.girlData.gallery_rank : 0
     },
-    mounted: function () {
+    mounted: function() {
       this.$nextTick(() => {
         // Register IPC Renderer event handles once for this control
         // 监听主进程的返回
@@ -176,7 +176,7 @@
         ],
         default_img: '',
         default_img_blob: '',
-        //用户上传的图集小类预览图
+        // 用户上传的图集小类预览图
         default_viewer_blob: [],
         default_viewer: [],
         // 上传图片是否展示
@@ -262,7 +262,7 @@
             if (this.girlDataType === 2) {
               // 小类新增
               formData.append('galleryId', galleryId)
-              for (let item of this.default_viewer_blob) {
+              for (const item of this.default_viewer_blob) {
                 formData.append('viewerfile', item.data, item.imgName)
               }
             }
@@ -282,7 +282,7 @@
             formData.append('type', this.addGirlForm.type)
             formData.append('netAddress', this.addGirlForm.netAddress)
             const re = new RegExp('\\\\', 'g')
-            if(this.addGirlForm.localAddress.toString().split("\\\\\\\\").length === 1){
+            if (this.addGirlForm.localAddress.toString().split('\\\\\\\\').length === 1) {
               this.addGirlForm.localAddress = this.addGirlForm.localAddress.replace(re, '\\\\\\\\') || ''
             }
             formData.append('localAddress', this.addGirlForm.localAddress)
@@ -296,18 +296,18 @@
               // 小类修改
               formData.append('galleryId', this.girlData.gallery_id)
               formData.append('galleryItemId', this.girlData.gallery_item_id)
-              for (let item of this.default_viewer_blob) {
+              for (const item of this.default_viewer_blob) {
                 formData.append('viewerfile', item.data, item.imgName)
               }
-              //之前上传的预览图列表<修改过> 用于后端判断是否逻辑删除 
+              // 之前上传的预览图列表<修改过> 用于后端判断是否逻辑删除
               for (let i = 0; i < this.girlViewerDataLocal.length; i++) {
-                for (let key in this.girlViewerDataLocal[i]) {
-                  //假设这个数组对应的字段为box
+                for (const key in this.girlViewerDataLocal[i]) {
+                  // 假设这个数组对应的字段为box
                   formData.append(`girlViewerLoaclImg[${i}][${key}]`, this.girlViewerDataLocal[i][key])
                 }
               }
             }
-            //只有在未上传封面时用得到
+            // 只有在未上传封面时用得到
             formData.append('imgId', this.girlData.gallery_cover)
             // 通知父组件可以提交信息了
             this.$emit('modify-girl-data', formData)
@@ -376,9 +376,9 @@
       handleClose(tag) {
         this.addGirlForm.dynamicTags.splice(this.addGirlForm.dynamicTags.indexOf(tag), 1)
       },
-      //展示小类详情图片
+      // 展示小类详情图片
       showMoreViewer() {
-        this.show_more_viewer = !this.show_more_viewer;
+        this.show_more_viewer = !this.show_more_viewer
       },
       showInput() {
         this.addGirlForm.inputVisible = true
@@ -395,30 +395,30 @@
         this.addGirlForm.inputVisible = false
         this.addGirlForm.inputValue = ''
       },
-      //删除预览图
+      // 删除预览图
       removeViewerImg(param) {
-        let tempList = this.girlViewerDataLocal.filter(item => {
-          return item.img_id != param.img_id
+        const tempList = this.girlViewerDataLocal.filter(item => {
+          return item.img_id !== param.img_id
         })
-        this.girlViewerDataLocal = [];
-        for (let item of tempList) {
+        this.girlViewerDataLocal = []
+        for (const item of tempList) {
           this.girlViewerDataLocal.push(item)
         }
       },
-      //删除用户新上传的预览图
+      // 删除用户新上传的预览图
       removeNewViewerImg(param) {
-        let tempList = this.default_viewer.filter(item => {
-          return item.imgName != param.imgName
+        const tempList = this.default_viewer.filter(item => {
+          return item.imgName !== param.imgName
         })
-        let tempList2 = this.default_viewer_blob.filter(item => {
-          return item.imgName != param.imgName
+        const tempList2 = this.default_viewer_blob.filter(item => {
+          return item.imgName !== param.imgName
         })
-        this.default_viewer = [];
-        for (let item of tempList) {
+        this.default_viewer = []
+        for (const item of tempList) {
           this.default_viewer.push(item)
         }
         this.default_viewer_blob = []
-        for (let item of tempList2) {
+        for (const item of tempList2) {
           this.default_viewer_blob.push(item)
         }
       },
@@ -447,7 +447,7 @@
         this.user_modify_viewer = true
         // 显示修改div
       },
-      //关闭小类预览图上传界面
+      // 关闭小类预览图上传界面
       closeEditViewer() {
         new Promise((resolve, reject) => {
           this.option.imgViewer = ''

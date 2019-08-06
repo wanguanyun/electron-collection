@@ -13,11 +13,11 @@
     name: 'App',
     computed: {
       ...mapGetters([
-        'token',
+        'token'
       ])
     },
     created() {
-      //监听菜单栏设置按钮
+      // 监听菜单栏设置按钮
       ipcRenderer.on('goSetting', (event, files) => {
         if (this.token) {
           this.$router.push({
@@ -40,5 +40,8 @@
     margin-bottom:5px !important;
     color: #7f6360;
     font-size: 15px;
+  }
+  .tag-photo-popover {
+    padding:0;
   }
 </style>

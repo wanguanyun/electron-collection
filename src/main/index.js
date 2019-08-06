@@ -10,6 +10,7 @@ import {
 } from 'electron'
 
 const path = require('path')
+const fs = require('fs') // 引用文件系统模块
 
 /**
  * Set `__static` path to static files in production
@@ -71,7 +72,10 @@ function createWindow() {
   const trayIcon = path.join(__dirname, '../../build/icons/my.png') // app是选取的目录
   console.log(trayIcon)
   let tIcon = nativeImage.createFromPath(trayIcon)
-  tIcon = tIcon.resize({ width: 32, height: 32 })
+  tIcon = tIcon.resize({
+    width: 32,
+    height: 32
+  })
   appTray = new Tray(tIcon) // app.ico是app目录下的ico文件
 
   // 图标的上下文菜单
@@ -126,6 +130,11 @@ ipcMain.on('min-app', () => {
   mainWindow.minimize()
 })
 
+ipcMain.on('test-get-moive', (event, arg) => {
+  console.log(arg)
+  console.log(getFiles.getFileList(arg))
+})
+
 ipcMain.on('local-address-config', (event, arg) => {
   dialog.showOpenDialog({
     properties: ['openDirectory']
@@ -164,3 +173,56 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
 })
  */
+
+function readFileList(path, filesList) {
+  var files
+  try {
+    files = fs.readdirSync(path)
+  } catch (err) {
+    return
+  }
+  // fs.readFile('E:\\my_collection\\由衣酱(小唯)\\粉红私服\\1 (6).jpg',(err,data)=>{
+  //   if(err){
+  //     console.log(err)
+  //   }else{
+  //     console.log(data.toString('base64'))
+  //   }
+  // })
+  files.forEach(function(itm, index) {
+    var stat = fs.statSync(path + '/' + itm)
+    if (stat.isDirectory()) {
+      // 递归读取文件
+      readFileList(path + '/' + itm + '/', filesList)
+    } else {
+      var obj = {} // 定义一个对象存放文件的路径和名字
+      obj.path = path // 路径
+      obj.filename = itm // 名字
+      filesList.push(obj)
+      // console.log(path + "\\" + itm)
+
+      // new Promise((resolve,reject) => {
+      //   fs.readFileSync(path + "/" + itm + "/",(err,data)=>{
+      //     if(err){
+      //       console.log(err)
+      //     }else{
+      //       obj.fileData = data.toString()
+      //       console.log(data.toString())
+      //     }
+      //     resolve()
+      //   })
+      // }).then(()=>{
+      //   filesList.push(obj);
+      // }).catch(err =>{
+      //   console.log(err)
+      // })
+    }
+  })
+}
+var getFiles = {
+  // 获取文件夹下的所有文件
+  getFileList: function(path) {
+    var filesList = []
+    readFileList(path, filesList)
+    return filesList
+  }
+}

@@ -1,4 +1,5 @@
 build/*.js
 src/renderer/assets/**
 src/renderer/components/Background/**
+src/renderer/components/MainBackground/**
 dist/**

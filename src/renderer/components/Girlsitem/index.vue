@@ -122,16 +122,16 @@
       },
       // 打开更多预览
       moreViewer() {
-        //通知父组件打开
+        // 通知父组件打开
         this.$emit('more-item-viewer', this.girlData)
       },
-      //图集大类合并
-      mergeGirl(){
-        //通知父组件打开
+      // 图集大类合并
+      mergeGirl() {
+        // 通知父组件打开
         this.$emit('merge-girl-data', this.girlData)
       },
-      //移动图集小类
-      moveGirlItem(){
+      // 移动图集小类
+      moveGirlItem() {
         // 通知父组件
         this.$emit('move-girl-data', this.girlData)
       },

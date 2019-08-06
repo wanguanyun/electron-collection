@@ -3,12 +3,12 @@ const setting = {
   state: {
     // 用于获取大类信息
     girlInfo: {},
-    //图集大类列表展示排序-默认标题首字母
-    querysort:'1',
-    //图集大类列表检索-默认空
-    queryname:'',
-    //图集大类列表当前页 默认第一页
-    currentpage:1,
+    // 图集大类列表展示排序-默认标题首字母
+    querysort: '1',
+    // 图集大类列表检索-默认空
+    queryname: '',
+    // 图集大类列表当前页 默认第一页
+    currentpage: 1
   },
 
   mutations: {

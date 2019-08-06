@@ -5,19 +5,22 @@
       <navbar></navbar>
       <app-main></app-main>
     </div>
+    <Background></Background>
   </div>
 </template>
 
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import Background from '@/components/MainBackground/index'
 
 export default {
   name: 'layout',
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    Background
   },
   mixins: [ResizeMixin],
   computed: {

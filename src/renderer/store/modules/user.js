@@ -13,8 +13,12 @@ const user = {
     // 默认封面<小类>
     defaule_item_cover: '',
     last_login_time: '',
-    //默认模式为正常模式 1：正常 2：隐私模式
-    app_module:1
+    // 默认模式为正常模式 1：正常 2：隐私模式
+    app_module: 1,
+    //首页显示图集小类个数
+    default_dashboard_item_number:10,
+    //首页显示图集大类个数
+    default_dashboard_number:10,
   },
 
   mutations: {
@@ -39,9 +43,15 @@ const user = {
     SET_LAST_LOGIN_TIME: (state, time) => {
       state.last_login_time = time
     },
-    SET_APP_MODULE: (state,appModule) => {
+    SET_APP_MODULE: (state, appModule) => {
       state.app_module = appModule
-    }
+    },
+    SET_DEFAULT_DASHBOARD_ITEM_NUMBER: (state, default_dashboard_item_number) => {
+      state.default_dashboard_item_number = default_dashboard_item_number
+    },
+    SET_DEFAULT_DASHBOARD_NUMBER: (state, default_dashboard_number) => {
+      state.default_dashboard_number = default_dashboard_number
+    },
   },
 
   actions: {
@@ -58,16 +68,19 @@ const user = {
           commit('SET_DEFAULT_COVER', data.gallery_img)
           commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
           commit('SET_LAST_LOGIN_TIME', data.last_login_time)
-          commit('SET_APP_MODULE',data.app_module)
+          commit('SET_APP_MODULE', data.app_module)
+          commit('SET_DEFAULT_DASHBOARD_ITEM_NUMBER', data.default_dashboard_item_number)
+          commit('SET_DEFAULT_DASHBOARD_NUMBER', data.default_dashboard_number)
+          // sessionStorage.setItem("userInfo",JSON.stringify(data))
           resolve()
         }).catch(error => {
           reject(error)
         })
       })
     },
-    
-    //修改用户密码
-    ChangePw({ commit },param){
+
+    // 修改用户密码
+    ChangePw({ commit }, param) {
       const oldPassword = param.oldPassword.trim()
       const newPassword = param.newPassword.trim()
       return new Promise((resolve, reject) => {
@@ -83,7 +96,10 @@ const user = {
           commit('SET_DEFAULT_COVER', data.gallery_img)
           commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
           commit('SET_LAST_LOGIN_TIME', data.last_login_time)
-          commit('SET_APP_MODULE',data.app_module)
+          commit('SET_APP_MODULE', data.app_module)
+          commit('SET_DEFAULT_DASHBOARD_ITEM_NUMBER', data.default_dashboard_item_number)
+          commit('SET_DEFAULT_DASHBOARD_NUMBER', data.default_dashboard_number)
+          // sessionStorage.setItem("userInfo",JSON.stringify(data))
           resolve()
         }).catch(error => {
           reject(error)
@@ -106,7 +122,10 @@ const user = {
           commit('SET_DEFAULT_COVER', data.gallery_img)
           commit('SET_DEFAULT_ITEM_COVER', data.gallery_item_img)
           commit('SET_LAST_LOGIN_TIME', data.last_login_time)
-          commit('SET_APP_MODULE',data.app_module)
+          commit('SET_APP_MODULE', data.app_module)
+          commit('SET_DEFAULT_DASHBOARD_ITEM_NUMBER', data.default_dashboard_item_number)
+          commit('SET_DEFAULT_DASHBOARD_NUMBER', data.default_dashboard_number)
+          // sessionStorage.setItem("userInfo",JSON.stringify(data))
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -121,6 +140,7 @@ const user = {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           removeToken()
+          sessionStorage.clear()
           resolve()
         }).catch(error => {
           reject(error)
@@ -133,6 +153,7 @@ const user = {
       return new Promise(resolve => {
         removeToken()
         commit('SET_TOKEN', '')
+        sessionStorage.clear()
         resolve()
       })
     }

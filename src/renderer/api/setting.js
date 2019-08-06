@@ -38,3 +38,11 @@ export function modifyAppModule(params) {
     data: params
   })
 }
+
+export function modifyDashboardNumber(params) {
+  return request({
+    url: '/setting/modify/dashboard/number',
+    method: 'post',
+    data: params
+  })
+}

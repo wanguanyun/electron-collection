@@ -90,16 +90,16 @@
       Girlsupload
     },
     watch: {
-      //监听路由，只要路由有变化(路径，参数等变化)都有执行下面的函数，你可以
+      // 监听路由，只要路由有变化(路径，参数等变化)都有执行下面的函数，你可以
       $route: {
-        handler: function (val, oldVal) {
-          //created事件触发的函数可以在这里写...  
-          //都是componentA组件，声明周期还在，改变不了
-          if (this.$route.name == '福利姬') {
+        handler: function(val, oldVal) {
+          // created事件触发的函数可以在这里写...
+          // 都是componentA组件，声明周期还在，改变不了
+          if (this.$route.name === '福利姬') {
             this.gallerytype = '1'
-          } else if (this.$route.name == '图集') {
+          } else if (this.$route.name === '图集') {
             this.gallerytype = '2'
-          } else if (this.$route.name == '其他') {
+          } else if (this.$route.name === '其他') {
             this.gallerytype = '3'
           }
           this.fetchData()
@@ -108,12 +108,17 @@
       }
     },
     created() {
-      if (this.$route.name == '福利姬') {
+      if (this.$route.name === '福利姬') {
         this.gallerytype = '1'
-      } else if (this.$route.name == '图集') {
+      } else if (this.$route.name === '图集') {
         this.gallerytype = '2'
-      } else if (this.$route.name == '其他') {
+      } else if (this.$route.name === '其他') {
         this.gallerytype = '3'
+      }
+      if(this.$route.params.queryname){
+        this.queryname = this.$route.params.queryname
+      }else{
+        this.queryname = ''
       }
       this.fetchData()
     },
@@ -122,68 +127,68 @@
         return process.env.BASE_API
       },
       querysort: {
-        get: function () {
+        get: function() {
           return this.$store.state.setting.querysort
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_QUERYSORT', v)
         }
       },
       queryname: {
-        get: function () {
+        get: function() {
           return this.$store.state.setting.queryname
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_QUERYNAME', v)
         }
       },
       currentpage: {
-        get: function () {
+        get: function() {
           return this.$store.state.setting.currentpage
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_CURRENTPAGE', v)
         }
-      },
+      }
     },
     data() {
       return {
         // 点击添加按钮loading
         handleAddingLoading: false,
-        //合并图集按钮loading
+        // 合并图集按钮loading
         handleCombineLoading: false,
         // 新增/编辑按钮切换 add/modify
         addModifyButton: '',
         gallerytype: '',
         dialogVisible: false,
-        //合并小姐姐弹窗
+        // 合并小姐姐弹窗
         dialogVisible2: false,
-        //需要合并的大类名称
+        // 需要合并的大类名称
         combineGirlId: '',
         girlLists: [],
         total: 0,
         pagesize: 12,
         // 需要编辑的Girlsitem数据
         modifyGirlData: [],
-        //需要删除/合并的girl数据
+        // 需要删除/合并的girl数据
         deleteGirlData: null,
-        //连带小类一并删除
+        // 连带小类一并删除
         combineGirlCheck: false,
-        //图集大类合并操作 true 或者 删除图集大类操作 false
+        // 图集大类合并操作 true 或者 删除图集大类操作 false
         girlCheck: false,
-        //合并图集的下拉框数据
+        // 合并图集的下拉框数据
         girlCombineLists: [{
-            label: '福利姬',
-            options: []
-          }, {
-            label: '图集',
-            options: []
-          },
-          {
-            label: '其他',
-            options: []
-          }
-        ],
+          label: '福利姬',
+          options: []
+        }, {
+          label: '图集',
+          options: []
+        },
+        {
+          label: '其他',
+          options: []
+        }
+        ]
       }
     },
     methods: {
@@ -201,30 +206,30 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          //合并图集小类归属
+          // 合并图集小类归属
           this.dialogVisible2 = true
-          //查询图集大类列表
+          // 查询图集大类列表
           getGirlCombineLists({
             galleryId: param.gallery_id
           }).then(res => {
             console.log(res)
-            for (let type of this.girlCombineLists) {
-              //初始化清空
+            for (const type of this.girlCombineLists) {
+              // 初始化清空
               type.options = []
-              for (let item of res.data) {
-                if (type.label === '福利姬' && item.gallery_type == 1) {
+              for (const item of res.data) {
+                if (type.label === '福利姬' && item.gallery_type === 1) {
                   type.options.push({
                     value: item.gallery_id,
                     label: item.gallery_name
                   })
                 }
-                if (type.label === '图集' && item.gallery_type == 2) {
+                if (type.label === '图集' && item.gallery_type === 2) {
                   type.options.push({
                     value: item.gallery_id,
                     label: item.gallery_name
                   })
                 }
-                if (type.label === '其他' && item.gallery_type == 3) {
+                if (type.label === '其他' && item.gallery_type === 3) {
                   type.options.push({
                     value: item.gallery_id,
                     label: item.gallery_name
@@ -232,13 +237,13 @@
                 }
               }
             }
-          }).catch(() => {
+          }).catch((err) => {
             this.$notify({
               title: '错误！',
-              message: res.data,
+              message: err,
               type: 'warning'
             })
-            return;
+            return
           })
         }).catch(() => {})
       },
@@ -251,34 +256,34 @@
       handleModify() {
         this.$refs.girlsupload.handleModify()
       },
-      //合并图集大类 不删除图集大类
+      // 合并图集大类 不删除图集大类
       mergeGirlData(param) {
         this.girlCheck = true
         this.deleteGirlData = param
-        //合并图集小类归属
+        // 合并图集小类归属
         this.dialogVisible2 = true
-        //查询图集大类列表
+        // 查询图集大类列表
         getGirlCombineLists({
           galleryId: param.gallery_id
         }).then(res => {
           console.log(res)
-          for (let type of this.girlCombineLists) {
-            //初始化清空
+          for (const type of this.girlCombineLists) {
+            // 初始化清空
             type.options = []
-            for (let item of res.data) {
-              if (type.label === '福利姬' && item.gallery_type == 1) {
+            for (const item of res.data) {
+              if (type.label === '福利姬' && item.gallery_type === 1) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
                 })
               }
-              if (type.label === '图集' && item.gallery_type == 2) {
+              if (type.label === '图集' && item.gallery_type === 2) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
                 })
               }
-              if (type.label === '其他' && item.gallery_type == 3) {
+              if (type.label === '其他' && item.gallery_type === 3) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
@@ -286,16 +291,16 @@
               }
             }
           }
-        }).catch(() => {
+        }).catch((err) => {
           this.$notify({
             title: '错误！',
-            message: res.data,
+            message: err,
             type: 'warning'
           })
-          return;
+          return
         })
       },
-      //确认合并按钮点击
+      // 确认合并按钮点击
       handleCombine() {
         this.handleCombineLoading = true
         if (this.combineGirlCheck || (this.combineGirlId && !this.combineGirlCheck)) {

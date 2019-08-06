@@ -119,12 +119,12 @@
       return {
         // 点击添加按钮loading
         handleAddingLoading: false,
-        //合并图集按钮loading
+        // 合并图集按钮loading
         handleCombineLoading: false,
         // 新增/编辑按钮切换 add/modify
         addModifyButton: '',
         dialogVisible: false,
-        //合并小姐姐弹窗
+        // 合并小姐姐弹窗
         dialogVisible2: false,
         formInline: {
           queryname: '',
@@ -136,36 +136,36 @@
         pagesize: 12,
         // 需要编辑的Girlsitem数据
         modifyGirlData: [],
-        //需要移动的Girlitem数据
-        moveGirlItemData:null,
-        //girlItem的预览图
+        // 需要移动的Girlitem数据
+        moveGirlItemData: null,
+        // girlItem的预览图
         modifyGirlItemViewers: [],
         images: [],
-        //需要合并的大类名称
+        // 需要合并的大类名称
         combineGirlId: '',
-        //合并图集的下拉框数据
+        // 合并图集的下拉框数据
         girlCombineLists: [{
-            label: '福利姬',
-            options: []
-          }, {
-            label: '图集',
-            options: []
-          },
-          {
-            label: '其他',
-            options: []
-          }
-        ],
+          label: '福利姬',
+          options: []
+        }, {
+          label: '图集',
+          options: []
+        },
+        {
+          label: '其他',
+          options: []
+        }
+        ]
       }
     },
     methods: {
       modifyGirlbtn(param) {
         this.addModifyButton = 'modify'
         this.modifyGirlData = param
-        //实时获取图集小类的图片预览集
+        // 实时获取图集小类的图片预览集
         this.modifyGirlItemViewers = []
         getGirlItemViewers(param).then(res => {
-          for (let item of res.data) {
+          for (const item of res.data) {
             this.modifyGirlItemViewers.push(item)
           }
         }).catch(() => {})
@@ -206,33 +206,33 @@
           }
         }).catch(() => {})
       },
-      //移动图集小类
+      // 移动图集小类
       moveGirlData(param) {
         this.moveGirlItemData = param
-        //合并图集小类归属
+        // 合并图集小类归属
         this.dialogVisible2 = true
-        //查询图集大类列表
+        // 查询图集大类列表
         getGirlCombineLists({
           galleryId: param.gallery_id
         }).then(res => {
           console.log(res)
-          for (let type of this.girlCombineLists) {
-            //初始化清空
+          for (const type of this.girlCombineLists) {
+            // 初始化清空
             type.options = []
-            for (let item of res.data) {
-              if (type.label === '福利姬' && item.gallery_type == 1) {
+            for (const item of res.data) {
+              if (type.label === '福利姬' && item.gallery_type === 1) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
                 })
               }
-              if (type.label === '图集' && item.gallery_type == 2) {
+              if (type.label === '图集' && item.gallery_type === 2) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
                 })
               }
-              if (type.label === '其他' && item.gallery_type == 3) {
+              if (type.label === '其他' && item.gallery_type === 3) {
                 type.options.push({
                   value: item.gallery_id,
                   label: item.gallery_name
@@ -240,15 +240,14 @@
               }
             }
           }
-        }).catch(() => {
+        }).catch((err) => {
           this.$notify({
             title: '错误！',
-            message: res.data,
+            message: err,
             type: 'warning'
           })
-          return;
+          return
         })
-
       },
       handleCombine() {
         this.handleCombineLoading = true
@@ -343,12 +342,12 @@
       handleCurrentChange(currentpage) {
         this.fetchData()
       },
-      //展示图集小类更多图片预览
+      // 展示图集小类更多图片预览
       showMoreItemViewer(param) {
-        let that = this
+        const that = this
         this.images = []
         getGirlItemViewers(param).then(res => {
-          for (let item of res.data) {
+          for (const item of res.data) {
             that.images.push(that.Base_url + '/img/' + item.img_name)
           }
           setTimeout(() => {
