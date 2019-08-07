@@ -135,8 +135,6 @@
                 dialogVisible: false,
                 // 合并小姐姐弹窗
                 dialogVisible2: false,
-                queryname: '',
-                querysort: '1',
                 girlLists: [],
                 total: 0,
                 currentpage: 1,

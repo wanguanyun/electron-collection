@@ -23,9 +23,9 @@ if (process.env.NODE_ENV !== 'development') {
 // 托盘对象
 let appTray = null
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+const winURL = process.env.NODE_ENV === 'development' ?
+  `http://localhost:9080` :
+  `file://${__dirname}/index.html`
 
 function createWindow() {
   /**
@@ -42,50 +42,53 @@ function createWindow() {
     title: 'export all = life',
     // autoHideMenuBar: true,
     x: 0,
-    y: 0
+    y: 0,
+    webPreferences:{webSecurity: false}
   })
   // 系统托盘右键菜单
   var trayMenuTemplate = [{
-    label: '设置',
-    click: function() {
-      mainWindow.show()
-      mainWindow.webContents.send('goSetting')
-    } // 打开相应页面
-  },
-  {
-    label: '帮助',
-    click: function() {}
-  },
-  {
-    label: '关于',
-    click: function() {
-      const { dialog } = require('electron')
-      dialog.showMessageBox({
-        type:'info',
-        title: '关于',
-        noLink:true,
-        message: "new gilrfriend('18','大胸','萝莉','双马尾')",
-        buttons:['好的','了解']
-    },(index) => {
-        if ( index == 0 ) {
+      label: '设置',
+      click: function () {
+        mainWindow.show()
+        mainWindow.webContents.send('goSetting')
+      } // 打开相应页面
+    },
+    {
+      label: '帮助',
+      click: function () {}
+    },
+    {
+      label: '关于',
+      click: function () {
+        const {
+          dialog
+        } = require('electron')
+        dialog.showMessageBox({
+          type: 'info',
+          title: '关于',
+          noLink: true,
+          message: "new gilrfriend('18','大胸','萝莉','双马尾')",
+          buttons: ['好的', '了解']
+        }, (index) => {
+          if (index == 0) {
             console.log('You click ok.');
-        } else {
+          } else {
             console.log('You click cancel');
-        }
-    })
+          }
+        })
+      }
+    },
+    {
+      label: '退出',
+      click: function () {
+        app.quit()
+        app.quit() // 因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
+      }
     }
-  },
-  {
-    label: '退出',
-    click: function() {
-      app.quit()
-      app.quit() // 因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
-    }
-  }
   ]
   // 系统托盘图标目录 
   //图标
-  const trayIcon = (process.env.NODE_ENV === 'development'?path.join(__dirname, '../../build/icons/my.png'):path.join(__dirname, './static/my.png')) // app是选取的目录
+  const trayIcon = (process.env.NODE_ENV === 'development' ? path.join(__dirname, '../../build/icons/my.png') : path.join(__dirname, './static/my.png')) // app是选取的目录
   let tIcon = nativeImage.createFromPath(trayIcon)
   tIcon = tIcon.resize({
     width: 32,
@@ -102,7 +105,7 @@ function createWindow() {
   // 设置此图标的上下文菜单
   appTray.setContextMenu(contextMenu)
   // 单击右下角小图标显示应用
-  appTray.on('click', function() {
+  appTray.on('click', function () {
     mainWindow.show()
   })
 
@@ -146,8 +149,8 @@ ipcMain.on('min-app', () => {
 })
 
 ipcMain.on('test-get-moive', (event, arg) => {
-  console.log(arg)
   console.log(getFiles.getFileList(arg))
+  event.sender.send('test-get-moive-reply', getFiles.getFileList(arg))
 })
 
 ipcMain.on('local-address-config', (event, arg) => {
@@ -203,18 +206,20 @@ function readFileList(path, filesList) {
   //     console.log(data.toString('base64'))
   //   }
   // })
-  files.forEach(function(itm, index) {
+  files.forEach(function (itm, index) {
     var stat = fs.statSync(path + '/' + itm)
     if (stat.isDirectory()) {
       // 递归读取文件
       readFileList(path + '/' + itm + '/', filesList)
     } else {
-      var obj = {} // 定义一个对象存放文件的路径和名字
-      obj.path = path // 路径
-      obj.filename = itm // 名字
-      filesList.push(obj)
-      // console.log(path + "\\" + itm)
-
+      if (itm.split(".")[itm.split(".").length - 1] === 'jpg' || itm.split(".")[itm.split(".").length - 1] === 'png' || itm.split(".")[itm.split(".").length - 1] === 'jpeg') {
+        var obj = {} // 定义一个对象存放文件的路径和名字
+        obj.path = path // 路径
+        obj.filename = itm // 名字
+        // obj.nativeImage = nativeImage.createFromPath((path + "\\" + itm).replace(/\\/g, "\\\\"))
+        filesList.push(obj)
+      }
+      // console.log(nativeImage.createFromPath((path+"\\"+itm).replace(/\\/g,"\\\\")))
       // new Promise((resolve,reject) => {
       //   fs.readFileSync(path + "/" + itm + "/",(err,data)=>{
       //     if(err){
@@ -235,7 +240,7 @@ function readFileList(path, filesList) {
 }
 var getFiles = {
   // 获取文件夹下的所有文件
-  getFileList: function(path) {
+  getFileList: function (path) {
     var filesList = []
     readFileList(path, filesList)
     return filesList
