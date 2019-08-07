@@ -58,7 +58,22 @@ function createWindow() {
   },
   {
     label: '关于',
-    click: function() {}
+    click: function() {
+      const { dialog } = require('electron')
+      dialog.showMessageBox({
+        type:'info',
+        title: '关于',
+        noLink:true,
+        message: "new gilrfriend('18','大胸','萝莉','双马尾')",
+        buttons:['好的','了解']
+    },(index) => {
+        if ( index == 0 ) {
+            console.log('You click ok.');
+        } else {
+            console.log('You click cancel');
+        }
+    })
+    }
   },
   {
     label: '退出',
@@ -68,9 +83,9 @@ function createWindow() {
     }
   }
   ]
-  // 系统托盘图标目录
-  const trayIcon = path.join(__dirname, '../../build/icons/my.png') // app是选取的目录
-  console.log(trayIcon)
+  // 系统托盘图标目录 
+  //图标
+  const trayIcon = (process.env.NODE_ENV === 'development'?path.join(__dirname, '../../build/icons/my.png'):path.join(__dirname, './static/my.png')) // app是选取的目录
   let tIcon = nativeImage.createFromPath(trayIcon)
   tIcon = tIcon.resize({
     width: 32,
