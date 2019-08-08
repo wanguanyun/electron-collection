@@ -211,7 +211,7 @@
     modifyItemCover,
     modifyAppModule,
     getProjectInfo,
-    modifyDashboardNumber,
+    modifyDashboardNumber
   } from '@/api/setting'
   export default {
     data() {
@@ -302,26 +302,26 @@
         'last_login_time'
       ]),
       appModule: {
-        get: function () {
+        get: function() {
           return this.$store.state.user.app_module
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_APP_MODULE', v)
         }
       },
       default_dashboard_item_number: {
-        get: function () {
+        get: function() {
           return this.$store.state.user.default_dashboard_item_number
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_DEFAULT_DASHBOARD_ITEM_NUMBER', v)
         }
       },
       default_dashboard_number: {
-        get: function () {
+        get: function() {
           return this.$store.state.user.default_dashboard_number
         },
-        set: function (v) {
+        set: function(v) {
           this.$store.commit('SET_DEFAULT_DASHBOARD_NUMBER', v)
         }
       }
@@ -337,8 +337,8 @@
         this.gallery_count = res.data.gallery_count
         this.gallery_item_count = res.data.gallery_item_count
         this.img_total_count = res.data.img_total_count
-        this.img_total_size = res.data.img_total_size ? (parseFloat(res.data.img_total_size) / 1048576).toFixed(2) :
-          0
+        this.img_total_size = res.data.img_total_size ? (parseFloat(res.data.img_total_size) / 1048576).toFixed(2)
+          : 0
       }).catch(() => {
 
       })
@@ -620,10 +620,10 @@
           this.user_modify_item_cover = true
         }
       },
-      dashboardNumChange(){
+      dashboardNumChange() {
         modifyDashboardNumber({
           default_dashboard_item_number: this.default_dashboard_item_number,
-          default_dashboard_number:this.default_dashboard_number
+          default_dashboard_number: this.default_dashboard_number
         }).then(res => {
           this.$notify({
             title: res.message,

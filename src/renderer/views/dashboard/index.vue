@@ -3,7 +3,7 @@
     <transition name="upload" enter-active-class="animated fadeInLeft" leave-active-class="animated fadeOutLeft">
       <div class="dashboard-left" v-if="animate_visible">
         <div class="user-info">
-          <a><img :src="avatar" /></a>
+          <a @click="goSetting"><img :src="avatar" /></a>
           <p class="user-name">欢迎{{name}}</p>
         </div>
         <div class="project-info">
@@ -98,25 +98,24 @@
   } from 'vuex'
   import moment from 'moment'
   import {
-    getProjectInfo,
+    getProjectInfo
   } from '@/api/setting'
   import {
     getDashboardTags,
     getHotGalleryItem,
     getHotGallery,
-    getHotCarouselItem,
+    getHotCarouselItem
   } from '@/api/dashboard'
   import {
     getGirlItemViewers,
-    setGirlitemFavourite,
+    setGirlitemFavourite
   } from '@/api/girl'
   import Girlsitem from '@/components/Girlsitem/index'
-  const ipc = require('electron').ipcRenderer
 
   export default {
     name: 'dashboard',
     components: {
-      Girlsitem,
+      Girlsitem
     },
     computed: {
       Base_url() {
@@ -144,17 +143,17 @@
       }).catch(() => {
 
       })
-      //获取热门标签
+      // 获取热门标签
       getDashboardTags().then(res => {
         this.tagList = res.data
       }).catch(() => {})
-      //获取轮播图 图集小类 大类列表
+      // 获取轮播图 图集小类 大类列表
       this.getDashBoardAllGallery()
       // ipc.send('test-get-moive', 'E:\\my_collection\\由衣酱(小唯)\\粉红私服')
     },
     mounted() {
       this.animate_visible = true
-      const _this = this // 声明一个变量指向Vue实例this，保证作用域一致
+      // const _this = this // 声明一个变量指向Vue实例this，保证作用域一致
       // this.timer = setInterval(() => {
       //   _this.nowTime = moment(new Date()).format("HH:mm:ss") // 修改数据date
       // }, 1000)
@@ -178,20 +177,20 @@
         img_total_count: 0,
         img_total_size: 0,
         activeName: 'second',
-        nowTime: moment(new Date()).format("HH:mm:ss")
+        nowTime: moment(new Date()).format('HH:mm:ss')
       }
     },
     methods: {
       getDashBoardAllGallery() {
-        //获取图集小类列表
-        let query1 = getHotGalleryItem({
+        // 获取图集小类列表
+        const query1 = getHotGalleryItem({
           gallery_item_num: this.default_dashboard_item_number
         })
-        //获取图集大类列表
-        let query2 = getHotGallery({
+        // 获取图集大类列表
+        const query2 = getHotGallery({
           gallery_num: this.default_dashboard_number
         })
-        let query3 = getHotCarouselItem()
+        const query3 = getHotCarouselItem()
         Promise.all([query1, query2, query3]).then((res) => {
           this.gallery_item_lists = []
           for (let i = 0; i < res[0].data.length; i++) {
@@ -226,19 +225,19 @@
           this.carousel_lists = res[2].data
         }).catch(() => {})
       },
-      //所有图集&所有大类跳转
+      // 所有图集&所有大类跳转
       goAllGallery(flag) {
-        if (flag == 1) {
+        if (flag === 1) {
           this.$router.push({
             name: '所有图集'
           })
-        } else if (flag == 2) {
+        } else if (flag === 2) {
           this.$router.push({
             name: '福利姬'
           })
         }
       },
-      //图集大类点击进入所有小类
+      // 图集大类点击进入所有小类
       goThisGallery(gallerId) {
         this.$router.push({
           name: '详情',
@@ -247,13 +246,18 @@
           }
         })
       },
-      //幻灯片点击事件
+      // 幻灯片点击事件
       carouselClick(param) {
         this.$router.push({
           name: '详情',
           params: {
             id: param.gallery_id
           }
+        })
+      },
+      goSetting() {
+        this.$router.push({
+          name: '设置'
         })
       },
       // 展示图集小类更多图片预览
@@ -294,7 +298,7 @@
             queryname: tag
           }
         })
-      },
+      }
     }
   }
 </script>

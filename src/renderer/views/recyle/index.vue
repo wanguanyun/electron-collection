@@ -74,51 +74,51 @@
 
 <script>
     import {
-        getRecyleList,
-        restoreGallery,
+      getRecyleList,
+      restoreGallery
     } from '@/api/recyle'
     import moment from 'moment'
     export default {
-        data() {
-            return {
-                list: [],
-                listLoading: true,
-                visible: false,
-            }
-        },
-        created() {
-            this.fechData()
-        },
-        methods: {
-            fechData() {
-                getRecyleList().then(res => {
-                    this.listLoading = false
-                    this.list = res.data
-                }).catch(() => {
-                    this.listLoading = false
-                })
-            },
-            restore(param,element) {
-                console.log(param)
-                restoreGallery(param).then(res => {
-                    this.$notify({
-                        title: res.message,
-                        message: res.data,
-                        type: 'success'
-                    })
-                    element.target.parentNode.parentNode.parentNode.style.display = 'none'
-                    this.fechData()
-                }).catch(() => {})
-            },
-            cancelRestore(element){
-                element.target.parentNode.parentNode.parentNode.style.display = 'none'
-            },
-            sortByDate(a, b){
-                return parseInt(moment(a.create_time,"YYYY-MM-DD HH:mm").format("YYYYMMHHmm"))-parseInt(moment(b.create_time,"YYYY-MM-DD HH:mm").format("YYYYMMHHmm"))
-            },
-            sortByRank(a,b){
-                return parseInt((a?a:0))-parseInt((b?b:0))
-            }
+      data() {
+        return {
+          list: [],
+          listLoading: true,
+          visible: false
         }
+      },
+      created() {
+        this.fechData()
+      },
+      methods: {
+        fechData() {
+          getRecyleList().then(res => {
+            this.listLoading = false
+            this.list = res.data
+          }).catch(() => {
+            this.listLoading = false
+          })
+        },
+        restore(param, element) {
+          console.log(param)
+          restoreGallery(param).then(res => {
+            this.$notify({
+              title: res.message,
+              message: res.data,
+              type: 'success'
+            })
+            element.target.parentNode.parentNode.parentNode.style.display = 'none'
+            this.fechData()
+          }).catch(() => {})
+        },
+        cancelRestore(element) {
+          element.target.parentNode.parentNode.parentNode.style.display = 'none'
+        },
+        sortByDate(a, b) {
+          return parseInt(moment(a.create_time, 'YYYY-MM-DD HH:mm').format('YYYYMMHHmm')) - parseInt(moment(b.create_time, 'YYYY-MM-DD HH:mm').format('YYYYMMHHmm'))
+        },
+        sortByRank(a, b) {
+          return parseInt((a || 0)) - parseInt((b || 0))
+        }
+      }
     }
 </script>

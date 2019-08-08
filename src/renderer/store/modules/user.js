@@ -15,10 +15,10 @@ const user = {
     last_login_time: '',
     // 默认模式为正常模式 1：正常 2：隐私模式
     app_module: 1,
-    //首页显示图集小类个数
-    default_dashboard_item_number:10,
-    //首页显示图集大类个数
-    default_dashboard_number:10,
+    // 首页显示图集小类个数
+    default_dashboard_item_number: 10,
+    // 首页显示图集大类个数
+    default_dashboard_number: 10
   },
 
   mutations: {
@@ -51,7 +51,7 @@ const user = {
     },
     SET_DEFAULT_DASHBOARD_NUMBER: (state, default_dashboard_number) => {
       state.default_dashboard_number = default_dashboard_number
-    },
+    }
   },
 
   actions: {

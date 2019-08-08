@@ -115,9 +115,9 @@
       } else if (this.$route.name === '其他') {
         this.gallerytype = '3'
       }
-      if(this.$route.params.queryname){
+      if (this.$route.params.queryname) {
         this.queryname = this.$route.params.queryname
-      }else{
+      } else {
         this.queryname = ''
       }
       this.fetchData()

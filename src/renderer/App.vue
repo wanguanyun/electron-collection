@@ -44,4 +44,22 @@
   .tag-photo-popover {
     padding:0;
   }
+  .pic-drawer {
+    .el-drawer__body {
+      height: 230px;
+      padding-bottom: 8px;
+      padding-left: 8px;
+      overflow-y: auto;
+      .el-image {
+        margin-right: 5px;
+      }
+    }
+    .el-drawer__header {
+      margin-bottom: 15px;
+      padding:10px 20px 0;
+    }
+    .el-image__error, .el-image__inner, .el-image__placeholder {
+      width:auto;
+    }
+  }
 </style>

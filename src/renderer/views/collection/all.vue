@@ -73,340 +73,337 @@
 </template>
 
 <script>
-    import {
-        mapGetters
-    } from 'vuex'
     import Girlsitem from '@/components/Girlsitem/index'
     import Girlsupload from '@/components/Girlsupload/index'
     import {
-        getAllGirlitems,
-        addGirlitem,
-        modifyGirlitem,
-        deleteGirlitem,
-        setGirlitemFavourite,
-        getGirlItemViewers,
-        getGirlCombineLists,
-        moveGirlItem
+      getAllGirlitems,
+      addGirlitem,
+      modifyGirlitem,
+      deleteGirlitem,
+      setGirlitemFavourite,
+      getGirlItemViewers,
+      getGirlCombineLists,
+      moveGirlItem
     } from '@/api/girl'
 
     export default {
-        name: 'girls',
-        components: {
-            Girlsitem,
-            Girlsupload
-        },
-        created() {
-            if (this.$route.params.queryname) {
-                this.queryname = this.$route.params.queryname
-            } else {
-                this.queryname = ''
-            }
-            this.fetchData()
-        },
-        computed: {
-            Base_url() {
-                return process.env.BASE_API
-            },
-            querysort: {
-                get: function () {
-                    return this.$store.state.setting.querysort
-                },
-                set: function (v) {
-                    this.$store.commit('SET_QUERYSORT', v)
-                }
-            },
-            queryname: {
-                get: function () {
-                    return this.$store.state.setting.queryname
-                },
-                set: function (v) {
-                    this.$store.commit('SET_QUERYNAME', v)
-                }
-            },
-        },
-        data() {
-            return {
-                // 点击添加按钮loading
-                handleAddingLoading: false,
-                // 合并图集按钮loading
-                handleCombineLoading: false,
-                // 新增/编辑按钮切换 add/modify
-                addModifyButton: '',
-                dialogVisible: false,
-                // 合并小姐姐弹窗
-                dialogVisible2: false,
-                girlLists: [],
-                total: 0,
-                currentpage: 1,
-                pagesize: 12,
-                // 需要编辑的Girlsitem数据
-                modifyGirlData: [],
-                // 需要移动的Girlitem数据
-                moveGirlItemData: null,
-                // girlItem的预览图
-                modifyGirlItemViewers: [],
-                images: [],
-                // 需要合并的大类名称
-                combineGirlId: '',
-                // 合并图集的下拉框数据
-                girlCombineLists: [{
-                        label: '福利姬',
-                        options: []
-                    }, {
-                        label: '图集',
-                        options: []
-                    },
-                    {
-                        label: '其他',
-                        options: []
-                    }
-                ]
-            }
-        },
-        methods: {
-            modifyGirlbtn(param) {
-                this.addModifyButton = 'modify'
-                this.modifyGirlData = param
-                // 实时获取图集小类的图片预览集
-                this.modifyGirlItemViewers = []
-                getGirlItemViewers(param).then(res => {
-                    for (const item of res.data) {
-                        this.modifyGirlItemViewers.push(item)
-                    }
-                }).catch(() => {})
-                // 打开编辑弹窗
-                this.dialogVisible = true
-            },
-            deleteGirlbtn(param) {
-                this.$confirm('是否确定删除, 是否继续?', '嗯???', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    deleteGirlitem(param).then(res => {
-                        // 关闭弹窗
-                        this.$notify({
-                            title: '成功',
-                            message: res.data,
-                            type: 'success'
-                        })
-                        // 获取列表数据
-                        this.fetchData()
-                    })
-                }).catch(() => {})
-            },
-            // 设为喜欢
-            handelFavourite(param) {
-                setGirlitemFavourite(param).then(res => {
-                    let index = null
-                    for (let i = 0; i < this.girlLists.length; i++) {
-                        if (this.girlLists[i].gallery_item_id === res.data.gallery_item_id) {
-                            index = i
-                            this.girlLists[i].if_favourite = res.data.if_favourite
-                            break
-                        }
-                    }
-                    if (index) {
-                        this.$set(this.girlLists, index, this.girlLists[index])
-                    }
-                }).catch(() => {})
-            },
-            // 移动图集小类
-            moveGirlData(param) {
-                this.moveGirlItemData = param
-                // 合并图集小类归属
-                this.dialogVisible2 = true
-                // 查询图集大类列表
-                getGirlCombineLists({
-                    galleryId: param.gallery_id
-                }).then(res => {
-                    console.log(res)
-                    for (const type of this.girlCombineLists) {
-                        // 初始化清空
-                        type.options = []
-                        for (const item of res.data) {
-                            if (type.label === '福利姬' && item.gallery_type === 1) {
-                                type.options.push({
-                                    value: item.gallery_id,
-                                    label: item.gallery_name
-                                })
-                            }
-                            if (type.label === '图集' && item.gallery_type === 2) {
-                                type.options.push({
-                                    value: item.gallery_id,
-                                    label: item.gallery_name
-                                })
-                            }
-                            if (type.label === '其他' && item.gallery_type === 3) {
-                                type.options.push({
-                                    value: item.gallery_id,
-                                    label: item.gallery_name
-                                })
-                            }
-                        }
-                    }
-                }).catch((err) => {
-                    this.$notify({
-                        title: '错误！',
-                        message: err,
-                        type: 'warning'
-                    })
-                    return
-                })
-            },
-            handleCombine() {
-                this.handleCombineLoading = true
-                if (this.combineGirlId) {
-                    moveGirlItem({
-                        ...this.moveGirlItemData,
-                        combineGirlId: this.combineGirlId
-                    }).then(res => {
-                        // 关闭弹窗
-                        this.handleCombineLoading = false
-                        this.dialogVisible2 = false
-                        this.$notify({
-                            title: '成功',
-                            message: res.data,
-                            type: 'success'
-                        })
-                        // 获取列表数据
-                        this.fetchData()
-                    }).catch(() => {
-                        this.handleCombineLoading = false
-                    })
-                }
-            },
-            // 确认添小姐姐按钮点击
-            handleAdd() {
-                // 触发子组件内表单校验以及数据获取方法
-                this.$refs.girlsupload.handleAdd(this.$route.params.id)
-            },
-            // 确认修改姐姐按钮点击
-            handleModify() {
-                this.$refs.girlsupload.handleModify()
-            },
-            // 新增-表单校验成功调取新增数据api
-            handleAdding(param) {
-                this.handleAddingLoading = true
-                addGirlitem(param).then(res => {
-                    // 新增按钮loading结束
-                    this.handleAddingLoading = false
-                    // 关闭弹窗
-                    this.dialogVisible = false
-                    this.$notify({
-                        title: '成功',
-                        message: res.data,
-                        type: 'success'
-                    })
-                    // 获取列表数据
-                    this.fetchData()
-                }).catch(() => {
-                    this.handleAddingLoading = false
-                })
-            },
-            // 编辑-表单校验成功调取编辑数据api
-            handlemodifying(param) {
-                this.handleAddingLoading = true
-                modifyGirlitem(param).then(res => {
-                    // 新增按钮loading结束
-                    this.handleAddingLoading = false
-                    // 关闭弹窗
-                    this.dialogVisible = false
-                    this.$notify({
-                        title: '成功',
-                        message: res.data,
-                        type: 'success'
-                    })
-                    // 获取列表数据
-                    this.fetchData()
-                }).catch(() => {
-                    this.handleAddingLoading = false
-                })
-            },
-            // 新增小姐姐弹窗关闭回调
-            addGirlInit() {
-                // 清空信息
-                this.modifyGirlData = []
-                this.$refs.girlsupload.init()
-                // this.$refs.girlsupload.handleReset()
-            },
-            // 返回上一级
-            goback() {
-                this.$router.back()
-            },
-            // 点击标签检索
-            handleTagSearch(tag) {
-                this.queryname = tag
-                this.fetchData()
-            },
-            // 检索按钮点击
-            handleSearch() {
-                this.fetchData()
-            },
-            // 分页切换事件
-            handleCurrentChange(currentpage) {
-                this.fetchData()
-            },
-            // 展示图集小类更多图片预览
-            showMoreItemViewer(param) {
-                const that = this
-                this.images = []
-                getGirlItemViewers(param).then(res => {
-                    for (const item of res.data) {
-                        that.images.push(that.Base_url + '/img/' + item.img_name)
-                    }
-                    setTimeout(() => {
-                        const viewer = that.$el.querySelector('.images').$viewer
-                        viewer.show()
-                    }, 200)
-                }).catch(() => {})
-            },
-            // 获取列表数据
-            fetchData() {
-                this.girlLists = []
-                // 使用到ref需要到钩子函数里先挂载一下
-                this.$mount()
-                const loading = this.$loading({
-                    lock: true,
-                    target: this.$refs.girls_container,
-                    fullscreen: false,
-                    text: '好急呀....'
-                })
-                getAllGirlitems({
-                    queryname: this.queryname,
-                    querysort: this.querysort,
-                    currentpage: this.currentpage,
-                    pagesize: this.pagesize,
-                }).then(res => {
-                    loading.close()
-                    if (res.code === 200) {
-                        this.total = res.data.total
-                        for (let i = 0; i < res.data.rows.length; i++) {
-                            setTimeout(() => {
-                                this.girlLists.push({
-                                    create_time: res.data.rows[i].create_time,
-                                    gallery_id: res.data.rows[i].gallery_id,
-                                    gallery_item_id: res.data.rows[i].gallery_item_id,
-                                    gallery_cover: res.data.rows[i].gallery_item_cover,
-                                    gallery_del_flag: res.data.rows[i].gallery_item_del_flag,
-                                    gallery_detail: res.data.rows[i].gallery_item_detail,
-                                    gallery_local: res.data.rows[i].gallery_item_local,
-                                    gallery_name: res.data.rows[i].gallery_item_name,
-                                    gallery_net: res.data.rows[i].gallery_item_net,
-                                    gallery_rank: res.data.rows[i].gallery_item_rank,
-                                    gallery_tag: res.data.rows[i].gallery_item_tag,
-                                    img_detail: res.data.rows[i].img_detail,
-                                    img_id: res.data.rows[i].img_id,
-                                    img_name: res.data.rows[i].img_name,
-                                    img_size: res.data.rows[i].img_size,
-                                    if_favourite: res.data.rows[i].if_favourite
-                                })
-                            }, i * 80)
-                        }
-                    }
-                })
-            }
+      name: 'girls',
+      components: {
+        Girlsitem,
+        Girlsupload
+      },
+      created() {
+        if (this.$route.params.queryname) {
+          this.queryname = this.$route.params.queryname
+        } else {
+          this.queryname = ''
         }
+        this.fetchData()
+      },
+      computed: {
+        Base_url() {
+          return process.env.BASE_API
+        },
+        querysort: {
+          get: function() {
+            return this.$store.state.setting.querysort
+          },
+          set: function(v) {
+            this.$store.commit('SET_QUERYSORT', v)
+          }
+        },
+        queryname: {
+          get: function() {
+            return this.$store.state.setting.queryname
+          },
+          set: function(v) {
+            this.$store.commit('SET_QUERYNAME', v)
+          }
+        }
+      },
+      data() {
+        return {
+          // 点击添加按钮loading
+          handleAddingLoading: false,
+          // 合并图集按钮loading
+          handleCombineLoading: false,
+          // 新增/编辑按钮切换 add/modify
+          addModifyButton: '',
+          dialogVisible: false,
+          // 合并小姐姐弹窗
+          dialogVisible2: false,
+          girlLists: [],
+          total: 0,
+          currentpage: 1,
+          pagesize: 12,
+          // 需要编辑的Girlsitem数据
+          modifyGirlData: [],
+          // 需要移动的Girlitem数据
+          moveGirlItemData: null,
+          // girlItem的预览图
+          modifyGirlItemViewers: [],
+          images: [],
+          // 需要合并的大类名称
+          combineGirlId: '',
+          // 合并图集的下拉框数据
+          girlCombineLists: [{
+            label: '福利姬',
+            options: []
+          }, {
+            label: '图集',
+            options: []
+          },
+          {
+            label: '其他',
+            options: []
+          }
+          ]
+        }
+      },
+      methods: {
+        modifyGirlbtn(param) {
+          this.addModifyButton = 'modify'
+          this.modifyGirlData = param
+          // 实时获取图集小类的图片预览集
+          this.modifyGirlItemViewers = []
+          getGirlItemViewers(param).then(res => {
+            for (const item of res.data) {
+              this.modifyGirlItemViewers.push(item)
+            }
+          }).catch(() => {})
+          // 打开编辑弹窗
+          this.dialogVisible = true
+        },
+        deleteGirlbtn(param) {
+          this.$confirm('是否确定删除, 是否继续?', '嗯???', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            deleteGirlitem(param).then(res => {
+              // 关闭弹窗
+              this.$notify({
+                title: '成功',
+                message: res.data,
+                type: 'success'
+              })
+              // 获取列表数据
+              this.fetchData()
+            })
+          }).catch(() => {})
+        },
+        // 设为喜欢
+        handelFavourite(param) {
+          setGirlitemFavourite(param).then(res => {
+            let index = null
+            for (let i = 0; i < this.girlLists.length; i++) {
+              if (this.girlLists[i].gallery_item_id === res.data.gallery_item_id) {
+                index = i
+                this.girlLists[i].if_favourite = res.data.if_favourite
+                break
+              }
+            }
+            if (index) {
+              this.$set(this.girlLists, index, this.girlLists[index])
+            }
+          }).catch(() => {})
+        },
+        // 移动图集小类
+        moveGirlData(param) {
+          this.moveGirlItemData = param
+          // 合并图集小类归属
+          this.dialogVisible2 = true
+          // 查询图集大类列表
+          getGirlCombineLists({
+            galleryId: param.gallery_id
+          }).then(res => {
+            console.log(res)
+            for (const type of this.girlCombineLists) {
+              // 初始化清空
+              type.options = []
+              for (const item of res.data) {
+                if (type.label === '福利姬' && item.gallery_type === 1) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+                if (type.label === '图集' && item.gallery_type === 2) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+                if (type.label === '其他' && item.gallery_type === 3) {
+                  type.options.push({
+                    value: item.gallery_id,
+                    label: item.gallery_name
+                  })
+                }
+              }
+            }
+          }).catch((err) => {
+            this.$notify({
+              title: '错误！',
+              message: err,
+              type: 'warning'
+            })
+            return
+          })
+        },
+        handleCombine() {
+          this.handleCombineLoading = true
+          if (this.combineGirlId) {
+            moveGirlItem({
+              ...this.moveGirlItemData,
+              combineGirlId: this.combineGirlId
+            }).then(res => {
+              // 关闭弹窗
+              this.handleCombineLoading = false
+              this.dialogVisible2 = false
+              this.$notify({
+                title: '成功',
+                message: res.data,
+                type: 'success'
+              })
+              // 获取列表数据
+              this.fetchData()
+            }).catch(() => {
+              this.handleCombineLoading = false
+            })
+          }
+        },
+        // 确认添小姐姐按钮点击
+        handleAdd() {
+          // 触发子组件内表单校验以及数据获取方法
+          this.$refs.girlsupload.handleAdd(this.$route.params.id)
+        },
+        // 确认修改姐姐按钮点击
+        handleModify() {
+          this.$refs.girlsupload.handleModify()
+        },
+        // 新增-表单校验成功调取新增数据api
+        handleAdding(param) {
+          this.handleAddingLoading = true
+          addGirlitem(param).then(res => {
+            // 新增按钮loading结束
+            this.handleAddingLoading = false
+            // 关闭弹窗
+            this.dialogVisible = false
+            this.$notify({
+              title: '成功',
+              message: res.data,
+              type: 'success'
+            })
+            // 获取列表数据
+            this.fetchData()
+          }).catch(() => {
+            this.handleAddingLoading = false
+          })
+        },
+        // 编辑-表单校验成功调取编辑数据api
+        handlemodifying(param) {
+          this.handleAddingLoading = true
+          modifyGirlitem(param).then(res => {
+            // 新增按钮loading结束
+            this.handleAddingLoading = false
+            // 关闭弹窗
+            this.dialogVisible = false
+            this.$notify({
+              title: '成功',
+              message: res.data,
+              type: 'success'
+            })
+            // 获取列表数据
+            this.fetchData()
+          }).catch(() => {
+            this.handleAddingLoading = false
+          })
+        },
+        // 新增小姐姐弹窗关闭回调
+        addGirlInit() {
+          // 清空信息
+          this.modifyGirlData = []
+          this.$refs.girlsupload.init()
+          // this.$refs.girlsupload.handleReset()
+        },
+        // 返回上一级
+        goback() {
+          this.$router.back()
+        },
+        // 点击标签检索
+        handleTagSearch(tag) {
+          this.queryname = tag
+          this.fetchData()
+        },
+        // 检索按钮点击
+        handleSearch() {
+          this.fetchData()
+        },
+        // 分页切换事件
+        handleCurrentChange(currentpage) {
+          this.fetchData()
+        },
+        // 展示图集小类更多图片预览
+        showMoreItemViewer(param) {
+          const that = this
+          this.images = []
+          getGirlItemViewers(param).then(res => {
+            for (const item of res.data) {
+              that.images.push(that.Base_url + '/img/' + item.img_name)
+            }
+            setTimeout(() => {
+              const viewer = that.$el.querySelector('.images').$viewer
+              viewer.show()
+            }, 200)
+          }).catch(() => {})
+        },
+        // 获取列表数据
+        fetchData() {
+          this.girlLists = []
+          // 使用到ref需要到钩子函数里先挂载一下
+          this.$mount()
+          const loading = this.$loading({
+            lock: true,
+            target: this.$refs.girls_container,
+            fullscreen: false,
+            text: '好急呀....'
+          })
+          getAllGirlitems({
+            queryname: this.queryname,
+            querysort: this.querysort,
+            currentpage: this.currentpage,
+            pagesize: this.pagesize
+          }).then(res => {
+            loading.close()
+            if (res.code === 200) {
+              this.total = res.data.total
+              for (let i = 0; i < res.data.rows.length; i++) {
+                setTimeout(() => {
+                  this.girlLists.push({
+                    create_time: res.data.rows[i].create_time,
+                    gallery_id: res.data.rows[i].gallery_id,
+                    gallery_item_id: res.data.rows[i].gallery_item_id,
+                    gallery_cover: res.data.rows[i].gallery_item_cover,
+                    gallery_del_flag: res.data.rows[i].gallery_item_del_flag,
+                    gallery_detail: res.data.rows[i].gallery_item_detail,
+                    gallery_local: res.data.rows[i].gallery_item_local,
+                    gallery_name: res.data.rows[i].gallery_item_name,
+                    gallery_net: res.data.rows[i].gallery_item_net,
+                    gallery_rank: res.data.rows[i].gallery_item_rank,
+                    gallery_tag: res.data.rows[i].gallery_item_tag,
+                    img_detail: res.data.rows[i].img_detail,
+                    img_id: res.data.rows[i].img_id,
+                    img_name: res.data.rows[i].img_name,
+                    img_size: res.data.rows[i].img_size,
+                    if_favourite: res.data.rows[i].if_favourite
+                  })
+                }, i * 80)
+              }
+            }
+          })
+        }
+      }
     }
 </script>
 <style rel="stylesheet/scss" lang="scss">
