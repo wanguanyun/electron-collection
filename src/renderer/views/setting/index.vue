@@ -5,7 +5,7 @@
         <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
           <el-card class="box-card" shadow="hover" v-if="user_config_one">
             <div class="user-config-title">
-              <SvgIcon iconClass="pic" class="user-setting-pic"></SvgIcon>图集默认封面配置
+              <SvgIcon iconClass="pic_fill" class="user-setting-pic"></SvgIcon>图集默认封面配置
             </div>
             <div class="user-config-contant">
               <el-row :gutter="20">
@@ -108,11 +108,16 @@
             </div>
           </el-card>
         </transition>
-        <el-card class="box-card" shadow="hover">
-          <div class="user-config-title">
-
-          </div>
-        </el-card>
+        <transition name="upload" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutLeft">
+          <el-card class="box-card" shadow="hover" v-if="user_config_one">
+            <div class="user-config-title">
+              <SvgIcon iconClass="friend_add_fill" class="user-setting-pic"></SvgIcon>本地配置
+            </div>
+            <div class="user-config-contant">
+              
+            </div>
+          </el-card>
+        </transition>
       </el-col>
       <el-col :span="5">
         <transition name="upload" enter-active-class="animated fadeInDown" leave-active-class="animated fadeOutLeft">

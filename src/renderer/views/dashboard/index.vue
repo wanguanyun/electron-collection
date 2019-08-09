@@ -33,12 +33,12 @@
           <el-badge v-if="index <= 5" v-for="(item,index) in tagList" :key="index" :value="item.tagCount" class="item"
             type="warning">
             <el-tag @click.native="handleTagSearch(item.tagName)" style="margin-right:10px;" type="info">
-              {{item.tagName}}</el-tag>
+              {{app_module === 1?item.tagName:'标签'}}</el-tag>
           </el-badge>
           <el-popover placement="right-start" title="更多标签" width="400" trigger="hover">
             <div>
               <el-link @click.native="handleTagSearch(item.tagName)" v-if="index > 5" style="margin-right:5px;"
-                v-for="(item,index) in tagList" :key="index" type="warning">{{item.tagName}}</el-link>
+                v-for="(item,index) in tagList" :key="index" type="warning">{{app_module === 1?item.tagName:'标签'}}</el-link>
             </div>
             <el-tag slot="reference" type="warning">更多<i class="el-icon-arrow-right el-icon--right"></i></el-tag>
           </el-popover>

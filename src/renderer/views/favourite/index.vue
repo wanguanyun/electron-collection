@@ -19,7 +19,7 @@
           <div v-if="item.gallery_item_net" v-clipboard:copy="item.gallery_item_net" v-clipboard:success="onCopy"
                 v-clipboard:error="onError" title="复制链接" class="item-favourite-download"><i class="el-icon-link"></i></div>
           <div class="favourite-item-info">
-            <p>{{item.gallery_item_name}}</p>
+            <p>{{app_module === 1?item.gallery_item_name:'猜猜我是谁？'}}</p>
           </div>
         </div>
       </el-col>

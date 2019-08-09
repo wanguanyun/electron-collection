@@ -104,9 +104,9 @@ export const constantRouterMap = [
     children: [
       {
         path: 'index',
-        name: '归档',
-        component: () => import('@/views/favourite/index'),
-        meta: { title: '归档', icon: 'archives' }
+        name: '用户配置',
+        component: () => import('@/views/setting/index'),
+        meta: { title: '用户配置', icon: 'archives' }
       }
     ]
   },
