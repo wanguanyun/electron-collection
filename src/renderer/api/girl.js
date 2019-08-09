@@ -40,6 +40,16 @@ export function getAllGirlitems(params) {
   })
 }
 
+export function getFavouriteGirlitems(params) {
+  return request({
+    url: '/girl/main/favourite/allitems',
+    method: 'post',
+    data: {
+      ...params
+    }
+  })
+}
+
 export function addGirl(params) {
   return request({
     url: '/girl/add',

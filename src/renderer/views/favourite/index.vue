@@ -1,31 +1,32 @@
 <template>
   <div class="favourite-container">
-    <div class="favourite-list" v-infinite-scroll="loadMore">
-      <el-col :xs="12" :sm="6" :xl="3" :lg="4">
+    <div class="favourite-list" v-infinite-scroll="loadMore" infinite-scroll-disabled="scrollDisabled">
+      <el-col :xs="12" :sm="6" :xl="3" :lg="4" v-for="(item,index) in itemLists" :key="index">
         <div class="favourite-item">
-          <el-image fit="cover" :src="defaule_cover">
+          <el-image fit="cover"
+            :src="item.img_name && app_module === 1?`${Base_url}/img/${item.img_name}`:`${defaule_item_cover}`">
           </el-image>
-          <div class="item-preview" @click="itemInfoPic(1)"><i class="el-icon-monitor"></i>预览</div>
-          <div class="item-favourite-off"><i class="el-icon-star-off"></i>取消最爱</div>
+          <div class="item-preview" @click="itemInfoPic(item)"><i class="el-icon-monitor"></i>预览</div>
+          <el-popover placement="bottom" width="150" trigger="hover">
+            <p>确定取消收藏吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text">取消</el-button>
+              <el-button type="primary" size="mini" @click="cancelFavourite(item,index)">确定</el-button>
+            </div>
+            <div class="item-favourite-off" slot="reference"><i class="el-icon-star-off"></i>取消最爱</div>
+          </el-popover>
+          <div @click="openLoaclDir(item)" class="item-favourite-open"><i class="el-icon-folder-opened"></i></div>
+          <div v-if="item.gallery_item_net" v-clipboard:copy="item.gallery_item_net" v-clipboard:success="onCopy"
+                v-clipboard:error="onError" title="复制链接" class="item-favourite-download"><i class="el-icon-link"></i></div>
           <div class="favourite-item-info">
-            <p>南小鸟棉花糖 26p+1v</p>
-          </div>
-        </div>
-      </el-col>
-      <el-col :xs="12" :sm="6" :xl="3" :lg="4">
-        <div class="favourite-item">
-          <el-image fit="cover" :src="defaule_cover">
-          </el-image>
-          <div class="item-preview" @click="itemInfoPic(2)"><i class="el-icon-monitor"></i>预览</div>
-          <div class="item-favourite-off"><i class="el-icon-star-off"></i>取消最爱</div>
-          <div class="favourite-item-info">
-            <p>南小鸟棉花糖 26p+1v</p>
+            <p>{{item.gallery_item_name}}</p>
           </div>
         </div>
       </el-col>
     </div>
-    <el-drawer custom-class="pic-drawer" title="南小鸟棉花糖 26p+1v" :visible.sync="drawer" direction="btt" size="40%">
-      <el-image @click="showOriginPic(item)" v-for="(item,index) in imgList" :key="index" style="height:100%" fit="contain" :src="item.url"></el-image>
+    <el-drawer custom-class="pic-drawer" :title="drawerTitleName+' (图片>2MB默认不展示)'" :visible.sync="drawer" direction="btt" size="40%">
+      <el-image @click="showOriginPic(item)" v-for="(item,index) in imgList" :key="index" style="height:100%"
+        fit="contain" :src="item.url"></el-image>
     </el-drawer>
     <div class="images" style="display:none;" v-viewer="{movable: false}">
       <img v-for="(item,index) in originPic" :src="item.url" :key="index">
@@ -37,23 +38,34 @@
   import {
     mapGetters
   } from 'vuex'
+  import {
+    getFavouriteGirlitems,
+    setGirlitemFavourite,
+  } from '@/api/girl'
   const ipc = require('electron').ipcRenderer
   export default {
     name: 'favourite',
     data() {
       return {
         imgList: [],
-        originPic:[],
+        originPic: [],
+        itemLists: [],
         count: 0,
         drawer: false,
+        currentpage: 0,
+        scrollDisabled: false,
+        drawerTitleName:'',
       }
     },
     computed: {
+      Base_url() {
+        return process.env.BASE_API
+      },
       ...mapGetters([
         'defaule_cover',
         'defaule_item_cover',
         'app_module'
-      ])
+      ]),
     },
     mounted: function () {
       this.$nextTick(() => {
@@ -61,6 +73,7 @@
         // 监听主进程的返回
         ipc.on('test-get-moive-reply', (e, args) => {
           this.imgList = []
+          console.log(args)
           for (let i = 0; i < args.length; i++) {
             this.imgList.push({
               url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
@@ -71,30 +84,65 @@
       })
     },
     created() {
-      
+
     },
     methods: {
       loadMore() {
         console.log("load more")
+        getFavouriteGirlitems({
+          pagesize: 30,
+          currentpage: ++this.currentpage
+        }).then(res => {
+          console.log(res)
+          res.data.rows.forEach(item => {
+            this.itemLists.push(item)
+          });
+          if (res.data.rows.length === 0) {
+            this.scrollDisabled = false
+          }
+        }).catch(() => {})
       },
-      showOriginPic(param){
+      showOriginPic(param) {
         const that = this
         this.originPic = []
         this.originPic.push(param)
         setTimeout(() => {
-            const viewer = that.$el.querySelector('.images').$viewer
-            viewer.show()
-          }, 200)
+          const viewer = that.$el.querySelector('.images').$viewer
+          viewer.show()
+        }, 200)
       },
-      itemInfoPic(index){
+      cancelFavourite(param, index) {
+        setGirlitemFavourite(param).then(res => {
+          //删除已取消最爱的
+          this.itemLists.splice(index, 1)
+        }).catch(() => {})
+      },
+      itemInfoPic(param) {
         this.drawer = true
-        if(index === 1){
-          ipc.send('test-get-moive', 'E:\\my_collection\\呆萌橘子酱\\白色小短裙')
-        }else{
-          ipc.send('test-get-moive', 'E:\\my_collection\\呆萌橘子酱\\可爱猫爪白丝')
-        }
-       
-      }
+        this.drawerTitleName = param.gallery_item_name
+        ipc.send('test-get-moive', param.gallery_item_local)
+      },
+      // 复制网络地址到剪贴板-成功
+      onCopy(e) {
+        this.$notify({
+          title: '成功',
+          message: '已复制网络地址到剪贴板',
+          type: 'success'
+        })
+      },
+      // 复制网络地址到剪贴板-失败
+      onError(e) {
+        this.$notify({
+          title: '失败',
+          message: '复制失败',
+          type: 'warning'
+        })
+      },
+       // 打开本地文件夹
+      openLoaclDir(param) {
+        console.log(1111)
+        ipc.send('local-address-open', param.gallery_item_local)
+      },
     }
   }
 </script>
@@ -177,6 +225,47 @@
 
         &:hover .item-favourite-off {
           top: 5px;
+        }
+
+        .item-favourite-open {
+          width: 32px;
+          height: 32px;
+          font-size: 20px;
+          line-height: 32px;
+          background: #f6f6f6;
+          display: block;
+          position: absolute;
+          left: -40px;
+          bottom: 50px;
+          border-radius: 0 0 0 4px;
+          text-align: center;
+          color: #7f6360;
+          cursor: pointer;
+          transition: all .2s .1s;
+        }
+
+        &:hover .item-favourite-open {
+          left: 2px;
+        }
+
+        .item-favourite-download {
+          width: 32px;
+          height: 32px;
+          font-size: 20px;
+          line-height: 32px;
+          background: #f6f6f6;
+          display: block;
+          position: absolute;
+          left: -80px;
+          bottom: 50px;
+          text-align: center;
+          color: #7f6360;
+          cursor: pointer;
+          transition: all .2s;
+        }
+
+        &:hover .item-favourite-download {
+          left: 40px;
         }
 
         .favourite-item-info {

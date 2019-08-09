@@ -212,7 +212,8 @@ function readFileList(path, filesList) {
       // 递归读取文件
       readFileList(path + '/' + itm + '/', filesList)
     } else {
-      if (itm.split('.')[itm.split('.').length - 1] === 'jpg' || itm.split('.')[itm.split('.').length - 1] === 'png' || itm.split('.')[itm.split('.').length - 1] === 'jpeg') {
+      //只显示 文件大小<2MB的图片
+      if ((stat.size/1048576) < 2 && (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg')) {
         var obj = {} // 定义一个对象存放文件的路径和名字
         obj.path = path // 路径
         obj.filename = itm // 名字

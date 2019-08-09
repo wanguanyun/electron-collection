@@ -44,6 +44,10 @@
   .tag-photo-popover {
     padding:0;
   }
+  .viewer-container {
+    //图片预览 需要在抽屉窗口之上
+    z-index:99999999 !important;
+  }
   .pic-drawer {
     .el-drawer__body {
       height: 230px;
