@@ -193,6 +193,7 @@ app.on('ready', () => {
  */
 
 function readFileList(path, filesList) {
+  let imgCount = 0
   var files
   try {
     files = fs.readdirSync(path)
@@ -206,14 +207,15 @@ function readFileList(path, filesList) {
   //     console.log(data.toString('base64'))
   //   }
   // })
-  files.forEach(function(itm, index) {
+  files.map(itm => {
     var stat = fs.statSync(path + '/' + itm)
     if (stat.isDirectory()) {
       // 递归读取文件
       readFileList(path + '/' + itm + '/', filesList)
     } else {
-      //只显示 文件大小<2MB的图片
-      if ((stat.size/1048576) < 2 && (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg')) {
+      //只显示 文件大小<2MB的图片  且每个文件夹最多显示40张图片
+      if (imgCount<40 && (stat.size/1048576) < 2 && (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg')) {
+        imgCount += 1
         var obj = {} // 定义一个对象存放文件的路径和名字
         obj.path = path // 路径
         obj.filename = itm // 名字
