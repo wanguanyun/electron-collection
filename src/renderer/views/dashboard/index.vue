@@ -38,7 +38,8 @@
           <el-popover placement="right-start" title="更多标签" width="400" trigger="hover">
             <div>
               <el-link @click.native="handleTagSearch(item.tagName)" v-if="index > 5" style="margin-right:5px;"
-                v-for="(item,index) in tagList" :key="index" type="warning">{{app_module === 1?item.tagName:'标签'}}</el-link>
+                v-for="(item,index) in tagList" :key="index" type="warning">{{app_module === 1?item.tagName:'标签'}}
+              </el-link>
             </div>
             <el-tag slot="reference" type="warning">更多<i class="el-icon-arrow-right el-icon--right"></i></el-tag>
           </el-popover>
@@ -58,7 +59,8 @@
           <el-popover v-for="(item,index) in gallery_item_lists" popper-class="tag-photo-popover" :offset="-30"
             placement="right-start" width="200" trigger="click" :visible-arrow="false">
             <Girlsitem style="width: 200px;padding: 0;" :girl-data="item" :girl-data-type="2"
-              @more-item-viewer="showMoreItemViewer" @set-favourite="handelFavourite" @tag-search="handleTagSearch">
+              @more-item-viewer-local="showMoreItemViewerLocal" @more-item-viewer="showMoreItemViewer"
+              @set-favourite="handelFavourite" @tag-search="handleTagSearch">
             </Girlsitem>
             <div class="tag-photo" slot="reference">
               <el-image style="width: 100%;"
@@ -89,6 +91,26 @@
     <div class="images" style="display:none;" v-viewer="{movable: false}">
       <img v-for="(src,index) in images" :src="src" :key="index">
     </div>
+    <el-drawer custom-class="pic-drawer" :title="drawerTitleName+' (图片>2MB默认不展示)'" :visible.sync="drawer"
+      direction="btt" size="80%">
+      <el-divider v-if="videoList.length !== 0">
+        <i class="el-icon-video-camera"></i></el-divider>
+      <div class="video-cover" @click="showVideo(item)" v-for="(item,index) in videoList" :key='"vide"+index'><i
+          class="el-icon-video-play"></i>
+        <p>{{item.filename}}</p>
+      </div>
+      <el-divider v-if="imgList.length !== 0"><i class="el-icon-picture-outline"></i></el-divider>
+      <el-image @click="showOriginPic(imgList)" v-for="(item,index) in imgList" :key="index" style="height:230px;"
+        fit="contain" :src="item.url">
+        <div slot="placeholder" class="image-slot">
+          <i class="el-icon-loading"></i>加载中...</span>
+        </div>
+      </el-image>
+    </el-drawer>
+    <el-dialog :visible.sync="showVideoPreview" :close-on-press-escape="false" :destroy-on-close="true" width="1000px"
+      custom-class="video-preview-dialog">
+      <div id="videoPreview" class="video-preview"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,7 +133,10 @@
     setGirlitemFavourite
   } from '@/api/girl'
   import Girlsitem from '@/components/Girlsitem/index'
+  import 'dplayer/dist/DPlayer.min.css'
+  import DPlayer from 'dplayer'
 
+  const ipc = require('electron').ipcRenderer
   export default {
     name: 'dashboard',
     components: {
@@ -151,12 +176,39 @@
       this.getDashBoardAllGallery()
       // ipc.send('test-get-moive', 'E:\\my_collection\\由衣酱(小唯)\\粉红私服')
     },
-    mounted() {
+    // mounted() {
+    //   this.animate_visible = true
+    // const _this = this // 声明一个变量指向Vue实例this，保证作用域一致
+    // this.timer = setInterval(() => {
+    //   _this.nowTime = moment(new Date()).format("HH:mm:ss") // 修改数据date
+    // }, 1000)
+    // },
+    mounted: function () {
       this.animate_visible = true
-      // const _this = this // 声明一个变量指向Vue实例this，保证作用域一致
-      // this.timer = setInterval(() => {
-      //   _this.nowTime = moment(new Date()).format("HH:mm:ss") // 修改数据date
-      // }, 1000)
+      this.$nextTick(() => {
+        // Register IPC Renderer event handles once for this control
+        // 监听主进程的返回
+        ipc.on('test-get-moive-reply', (e, args) => {
+          this.imgList = []
+          this.videoList = []
+          console.log(args)
+          for (let i = 0; i < args.length; i++) {
+            if (args[i].type === 'img') {
+              this.imgList.push({
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            } else {
+              this.videoList.push({
+                filename: args[i].filename,
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            }
+          }
+          this.images = this.imgList.map(item => {
+            return item.url
+          })
+        })
+      })
     },
     beforeDestroy() {
       if (this.timer) {
@@ -177,10 +229,30 @@
         img_total_count: 0,
         img_total_size: 0,
         activeName: 'second',
-        nowTime: moment(new Date()).format('HH:mm:ss')
+        nowTime: moment(new Date()).format('HH:mm:ss'),
+        drawer: false,
+        drawerTitleName: '',
+        imgList: [],
+        videoList: [],
+        showVideoPreview: false
       }
     },
     methods: {
+      showVideo(param) {
+        this.showVideoPreview = true
+        setTimeout(() => {
+          const dp = new DPlayer({
+            container: document.getElementById('videoPreview'),
+            autoplay: true,
+            video: {
+              url: param.url
+            }
+          })
+          dp.on('fullscreen', function () {
+            dp.fullScreen.cancel('browser')
+          })
+        }, 200)
+      },
       getDashBoardAllGallery() {
         // 获取图集小类列表
         const query1 = getHotGalleryItem({
@@ -259,6 +331,19 @@
         this.$router.push({
           name: '设置'
         })
+      },
+      // 展示本地图片预览
+      showMoreItemViewerLocal(param) {
+        this.drawer = true
+        this.drawerTitleName = param.gallery_name
+        ipc.send('test-get-moive', param.gallery_local)
+      },
+      showOriginPic(param) {
+        const that = this
+        setTimeout(() => {
+          const viewer = that.$el.querySelector('.images').$viewer
+          viewer.show()
+        }, 200)
       },
       // 展示图集小类更多图片预览
       showMoreItemViewer(param) {
@@ -386,6 +471,17 @@
       background: rgba(0, 0, 0, 0);
       color: #7f6360;
     }
+
+    .video-preview-dialog {
+      .el-dialog__body {
+        background: #606266;
+        padding: 0;
+      }
+
+      .el-dialog__header {
+        padding: 0;
+      }
+    }
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -393,6 +489,11 @@
     padding: 20px;
     display: flex;
     align-items: flex-start;
+
+    .video-preview {
+      width: 100%;
+      height: 460px;
+    }
 
     .dashboard-left {
       width: 300px;

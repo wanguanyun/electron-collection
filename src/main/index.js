@@ -23,9 +23,9 @@ if (process.env.NODE_ENV !== 'development') {
 // 托盘对象
 let appTray = null
 let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+const winURL = process.env.NODE_ENV === 'development' ?
+  `http://localhost:9080` :
+  `file://${__dirname}/index.html`
 
 function createWindow() {
   /**
@@ -43,48 +43,50 @@ function createWindow() {
     // autoHideMenuBar: true,
     x: 0,
     y: 0,
-    webPreferences: { webSecurity: false }
+    webPreferences: {
+      webSecurity: false
+    }
   })
   // 系统托盘右键菜单
   var trayMenuTemplate = [{
-    label: '设置',
-    click: function() {
-      mainWindow.show()
-      mainWindow.webContents.send('goSetting')
-    } // 打开相应页面
-  },
-  {
-    label: '帮助',
-    click: function() {}
-  },
-  {
-    label: '关于',
-    click: function() {
-      const {
-        dialog
-      } = require('electron')
-      dialog.showMessageBox({
-        type: 'info',
-        title: '关于',
-        noLink: true,
-        message: "new gilrfriend('18','大胸','萝莉','双马尾')",
-        buttons: ['好的', '了解']
-      }, (index) => {
-        if (index === 0) {
-          console.log('You click ok.')
-        } else {
-          console.log('You click cancel')
-        }
-      })
+      label: '设置',
+      click: function () {
+        mainWindow.show()
+        mainWindow.webContents.send('goSetting')
+      } // 打开相应页面
+    },
+    {
+      label: '帮助',
+      click: function () {}
+    },
+    {
+      label: '关于',
+      click: function () {
+        const {
+          dialog
+        } = require('electron')
+        dialog.showMessageBox({
+          type: 'info',
+          title: '关于',
+          noLink: true,
+          message: "new gilrfriend('18','大胸','萝莉','双马尾')",
+          buttons: ['好的', '了解']
+        }, (index) => {
+          if (index === 0) {
+            console.log('You click ok.')
+          } else {
+            console.log('You click cancel')
+          }
+        })
+      }
+    },
+    {
+      label: '退出',
+      click: function () {
+        app.quit()
+        app.quit() // 因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
+      }
     }
-  },
-  {
-    label: '退出',
-    click: function() {
-      app.quit()
-      app.quit() // 因为程序设定关闭为最小化，所以调用两次关闭，防止最大化时一次不能关闭的情况
-    }
-  }
   ]
   // 系统托盘图标目录
   // 图标
@@ -105,7 +107,7 @@ function createWindow() {
   // 设置此图标的上下文菜单
   appTray.setContextMenu(contextMenu)
   // 单击右下角小图标显示应用
-  appTray.on('click', function() {
+  appTray.on('click', function () {
     mainWindow.show()
   })
 
@@ -213,12 +215,21 @@ function readFileList(path, filesList) {
       // 递归读取文件
       readFileList(path + '/' + itm + '/', filesList)
     } else {
-      //只显示 文件大小<2MB的图片  且每个文件夹最多显示40张图片
-      if (imgCount<40 && (stat.size/1048576) < 2 && (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg')) {
+      // 只显示 文件大小<2MB的图片  且每个文件夹最多显示40张图片
+      if (imgCount < 40 && (stat.size / 1048576) < 2 && (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg')) {
         imgCount += 1
         var obj = {} // 定义一个对象存放文件的路径和名字
         obj.path = path // 路径
         obj.filename = itm // 名字
+        obj.type = 'img'
+        filesList.push(obj)
+      }
+      if (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'mp4' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'avi' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'mov' ||
+        itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'rmvb') {
+        var obj = {} // 定义一个对象存放文件的路径和名字
+        obj.path = path // 路径
+        obj.filename = itm // 名字
+        obj.type = 'video'
         filesList.push(obj)
       }
       // console.log(nativeImage.createFromPath((path+"\\"+itm).replace(/\\/g,"\\\\")))
@@ -242,7 +253,7 @@ function readFileList(path, filesList) {
 }
 var getFiles = {
   // 获取文件夹下的所有文件
-  getFileList: function(path) {
+  getFileList: function (path) {
     var filesList = []
     readFileList(path, filesList)
     return filesList

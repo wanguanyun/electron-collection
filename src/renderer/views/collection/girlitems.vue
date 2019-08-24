@@ -26,9 +26,10 @@
     </el-row>
     <div ref="girls_container" class="clearfix">
       <transition-group tag="div" enter-active-class="animated fadeIn">
-        <Girlsitem @more-item-viewer="showMoreItemViewer" @set-favourite="handelFavourite" @tag-search="handleTagSearch"
-          @delete-girl-data="deleteGirlbtn" @move-girl-data="moveGirlData" @modify-girl-data="modifyGirlbtn"
-          v-for="(item,index) in girlLists" :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
+        <Girlsitem @more-item-viewer-local="showMoreItemViewerLocal" @more-item-viewer="showMoreItemViewer"
+          @set-favourite="handelFavourite" @tag-search="handleTagSearch" @delete-girl-data="deleteGirlbtn"
+          @move-girl-data="moveGirlData" @modify-girl-data="modifyGirlbtn" v-for="(item,index) in girlLists"
+          :key="index" :girl-data="item" :girl-data-type="2"></Girlsitem>
       </transition-group>
     </div>
 
@@ -67,12 +68,32 @@
       </div>
       <span slot="footer">
         <el-button size="mini" type="primary" :disabled="combineGirlId == '' || !combineGirlId"
-          :loading="handleCombineLoading" @click="handleCombine">移  动</el-button>
+          :loading="handleCombineLoading" @click="handleCombine">移 动</el-button>
       </span>
     </el-dialog>
     <div class="images" style="display:none;" v-viewer="{movable: false}">
       <img v-for="(src,index) in images" :src="src" :key="index">
     </div>
+    <el-drawer custom-class="pic-drawer" :title="drawerTitleName+' (图片>2MB默认不展示)'" :visible.sync="drawer"
+      direction="btt" size="80%">
+      <el-divider v-if="videoList.length !== 0">
+        <i class="el-icon-video-camera"></i></el-divider>
+      <div class="video-cover" @click="showVideo(item)" v-for="(item,index) in videoList" :key='"vide"+index'><i
+          class="el-icon-video-play"></i>
+        <p>{{item.filename}}</p>
+      </div>
+      <el-divider v-if="imgList.length !== 0"><i class="el-icon-picture-outline"></i></el-divider>
+      <el-image @click="showOriginPic(imgList)" v-for="(item,index) in imgList" :key="index" style="height:230px;"
+        fit="contain" :src="item.url">
+        <div slot="placeholder" class="image-slot">
+          <i class="el-icon-loading"></i>加载中...</span>
+        </div>
+      </el-image>
+    </el-drawer>
+    <el-dialog :visible.sync="showVideoPreview" :close-on-press-escape="false" :destroy-on-close="true" width="1000px"
+      custom-class="video-preview-dialog">
+      <div id="videoPreview" class="video-preview"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -92,7 +113,9 @@
     getGirlCombineLists,
     moveGirlItem
   } from '@/api/girl'
-
+  import 'dplayer/dist/DPlayer.min.css'
+  import DPlayer from 'dplayer'
+  const ipc = require('electron').ipcRenderer
   export default {
     name: 'girls',
     components: {
@@ -105,6 +128,32 @@
         galleryId: this.$route.params.id
       })
       this.fetchData()
+    },
+    mounted: function () {
+      this.$nextTick(() => {
+        // Register IPC Renderer event handles once for this control
+        // 监听主进程的返回
+        ipc.on('test-get-moive-reply', (e, args) => {
+          this.imgList = []
+          this.videoList = []
+          console.log(args)
+          for (let i = 0; i < args.length; i++) {
+            if (args[i].type === 'img') {
+              this.imgList.push({
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            } else {
+              this.videoList.push({
+                filename: args[i].filename,
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            }
+          }
+          this.images = this.imgList.map(item => {
+            return item.url
+          })
+        })
+      })
     },
     computed: {
       Base_url() {
@@ -145,20 +194,40 @@
         combineGirlId: '',
         // 合并图集的下拉框数据
         girlCombineLists: [{
-          label: '福利姬',
-          options: []
-        }, {
-          label: '图集',
-          options: []
-        },
-        {
-          label: '其他',
-          options: []
-        }
-        ]
+            label: '福利姬',
+            options: []
+          }, {
+            label: '图集',
+            options: []
+          },
+          {
+            label: '其他',
+            options: []
+          }
+        ],
+        drawer: false,
+        drawerTitleName: '',
+        imgList: [],
+        videoList: [],
+        showVideoPreview: false
       }
     },
     methods: {
+      showVideo(param) {
+        this.showVideoPreview = true
+        setTimeout(() => {
+          const dp = new DPlayer({
+            container: document.getElementById('videoPreview'),
+            autoplay: true,
+            video: {
+              url: param.url
+            }
+          })
+          dp.on('fullscreen', function () {
+            dp.fullScreen.cancel('browser')
+          })
+        }, 200)
+      },
       modifyGirlbtn(param) {
         this.addModifyButton = 'modify'
         this.modifyGirlData = param
@@ -341,6 +410,19 @@
       // 分页切换事件
       handleCurrentChange(currentpage) {
         this.fetchData()
+      },
+      // 展示本地图片预览
+      showMoreItemViewerLocal(param) {
+        this.drawer = true
+        this.drawerTitleName = param.gallery_name
+        ipc.send('test-get-moive', param.gallery_local)
+      },
+      showOriginPic(param) {
+        const that = this
+        setTimeout(() => {
+          const viewer = that.$el.querySelector('.images').$viewer
+          viewer.show()
+        }, 200)
       },
       // 展示图集小类更多图片预览
       showMoreItemViewer(param) {
@@ -529,6 +611,17 @@
     .el-dialog__title {
       color: rgb(127, 99, 96);
     }
+
+    .video-preview-dialog {
+      .el-dialog__body {
+        background: #606266;
+        padding: 0;
+      }
+
+      .el-dialog__header {
+        padding: 0;
+      }
+    }
   }
 </style>
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -550,6 +643,11 @@
       .dialogTip {
         font-size: 18px;
         color: #E6A23C;
+      }
+
+      .video-preview {
+        width: 100%;
+        height: 460px;
       }
     }
 

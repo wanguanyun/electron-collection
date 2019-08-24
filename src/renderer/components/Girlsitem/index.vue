@@ -12,6 +12,8 @@
         <p v-if="girlDataType === 2" class="icon-more" @click="moreViewer">更多预览<SvgIcon iconClass="pull_right"
             class="pull-right-icon"></SvgIcon>
         </p>
+        <p v-if="girlDataType === 2" class="icon-more-local" @click="moreLocalViewer"><i class="el-icon-monitor"></i>本地预览
+        </p>
         <div v-if="girlDataType === 1" class="girl-item-count" v-text="girlData.gallery_item_count"></div>
         <div v-if="girlDataType === 1" class="girl-item-list">
           <ul>
@@ -125,6 +127,11 @@
         // 通知父组件打开
         this.$emit('more-item-viewer', this.girlData)
       },
+      // 打开本地预览
+      moreLocalViewer() {
+        // 通知父组件打开
+        this.$emit('more-item-viewer-local', this.girlData)
+      },
       // 图集大类合并
       mergeGirl() {
         // 通知父组件打开
@@ -237,6 +244,24 @@
       vertical-align: -0.25em;
     }
 
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .icon-more-local {
+    position: absolute;
+    bottom: -20%;
+    left: 4%;
+    font-size: 16px;
+    font-weight: 500;
+    z-index: 10;
+    cursor: pointer;
+    color: #7f6360;
+    transition: all 0.3s ease 0s;
+    .el-icon-monitor {
+      margin-right: 4px;
+    }
     &:hover {
       transform: scale(1.1);
     }
@@ -362,6 +387,9 @@
       }
 
       .icon-more {
+        bottom: 1%;
+      }
+      .icon-more-local {
         bottom: 1%;
       }
     }

@@ -17,20 +17,36 @@
           </el-popover>
           <div @click="openLoaclDir(item)" class="item-favourite-open"><i class="el-icon-folder-opened"></i></div>
           <div v-if="item.gallery_item_net" v-clipboard:copy="item.gallery_item_net" v-clipboard:success="onCopy"
-                v-clipboard:error="onError" title="复制链接" class="item-favourite-download"><i class="el-icon-link"></i></div>
+            v-clipboard:error="onError" title="复制链接" class="item-favourite-download"><i class="el-icon-link"></i></div>
           <div class="favourite-item-info">
             <p>{{app_module === 1?item.gallery_item_name:'猜猜我是谁？'}}</p>
           </div>
         </div>
       </el-col>
     </div>
-    <el-drawer custom-class="pic-drawer" :title="drawerTitleName+' (图片>2MB默认不展示)'" :visible.sync="drawer" direction="btt" size="40%">
-      <el-image @click="showOriginPic(item)" v-for="(item,index) in imgList" :key="index" style="height:100%"
-        fit="contain" :src="item.url"></el-image>
+    <el-drawer custom-class="pic-drawer" :title="drawerTitleName+' (图片>2MB默认不展示)'" :visible.sync="drawer"
+      direction="btt" size="80%">
+      <el-divider v-if="videoList.length !== 0">
+        <i class="el-icon-video-camera"></i></el-divider>
+      <div class="video-cover" @click="showVideo(item)" v-for="(item,index) in videoList" :key='"vide"+index'><i
+          class="el-icon-video-play"></i>
+        <p>{{item.filename}}</p>
+      </div>
+      <el-divider v-if="imgList.length !== 0"><i class="el-icon-picture-outline"></i></el-divider>
+      <el-image @click="showOriginPic(imgList)" v-for="(item,index) in imgList" :key="index" style="height:230px;"
+        fit="contain" :src="item.url">
+        <div slot="placeholder" class="image-slot">
+          <i class="el-icon-loading"></i>加载中...</span>
+        </div>
+      </el-image>
     </el-drawer>
     <div class="images" style="display:none;" v-viewer="{movable: false}">
       <img v-for="(item,index) in originPic" :src="item.url" :key="index">
     </div>
+    <el-dialog :visible.sync="showVideoPreview" :close-on-press-escape="false" :destroy-on-close="true" width="1000px"
+      custom-class="video-preview-dialog">
+      <div id="videoPreview" class="video-preview"></div>
+    </el-dialog>
   </div>
 </template>
 
@@ -40,8 +56,10 @@
   } from 'vuex'
   import {
     getFavouriteGirlitems,
-    setGirlitemFavourite,
+    setGirlitemFavourite
   } from '@/api/girl'
+  import 'dplayer/dist/DPlayer.min.css'
+  import DPlayer from 'dplayer'
   const ipc = require('electron').ipcRenderer
   export default {
     name: 'favourite',
@@ -54,7 +72,9 @@
         drawer: false,
         currentpage: 0,
         scrollDisabled: false,
-        drawerTitleName:'',
+        drawerTitleName: '',
+        videoList: [],
+        showVideoPreview: false
       }
     },
     computed: {
@@ -65,7 +85,7 @@
         'defaule_cover',
         'defaule_item_cover',
         'app_module'
-      ]),
+      ])
     },
     mounted: function () {
       this.$nextTick(() => {
@@ -73,13 +93,21 @@
         // 监听主进程的返回
         ipc.on('test-get-moive-reply', (e, args) => {
           this.imgList = []
+          this.videoList = []
           console.log(args)
           for (let i = 0; i < args.length; i++) {
-            this.imgList.push({
-              url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
-            })
+            if (args[i].type === 'img') {
+              this.imgList.push({
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            } else {
+              this.videoList.push({
+                filename: args[i].filename,
+                url: (args[i].path + '\\' + args[i].filename).replace(/\\/g, '\\\\')
+              })
+            }
           }
-          console.log(this.imgList)
+          this.originPic = this.imgList
         })
       })
     },
@@ -88,7 +116,7 @@
     },
     methods: {
       loadMore() {
-        console.log("load more")
+        console.log('load more')
         getFavouriteGirlitems({
           pagesize: 30,
           currentpage: ++this.currentpage
@@ -96,16 +124,32 @@
           console.log(res)
           res.data.rows.forEach(item => {
             this.itemLists.push(item)
-          });
+          })
           if (res.data.rows.length === 0) {
             this.scrollDisabled = false
           }
         }).catch(() => {})
       },
+      showVideo(param) {
+        console.log(param)
+        this.showVideoPreview = true
+        setTimeout(() => {
+          const dp = new DPlayer({
+            container: document.getElementById('videoPreview'),
+            autoplay: true,
+            video: {
+              url: param.url
+            }
+          })
+          dp.on('fullscreen', function () {
+            dp.fullScreen.cancel('browser')
+          })
+        }, 200)
+      },
       showOriginPic(param) {
         const that = this
-        this.originPic = []
-        this.originPic.push(param)
+        // this.originPic = param
+        // this.originPic.push(param)
         setTimeout(() => {
           const viewer = that.$el.querySelector('.images').$viewer
           viewer.show()
@@ -113,7 +157,7 @@
       },
       cancelFavourite(param, index) {
         setGirlitemFavourite(param).then(res => {
-          //删除已取消最爱的
+          // 删除已取消最爱的
           this.itemLists.splice(index, 1)
         }).catch(() => {})
       },
@@ -138,17 +182,28 @@
           type: 'warning'
         })
       },
-       // 打开本地文件夹
+      // 打开本地文件夹
       openLoaclDir(param) {
         console.log(1111)
         ipc.send('local-address-open', param.gallery_item_local)
-      },
+      }
     }
   }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
+  .favourite-container {
+    .video-preview-dialog {
+      .el-dialog__body {
+        background: #606266;
+        padding: 0;
+      }
 
+      .el-dialog__header {
+        padding: 0;
+      }
+    }
+  }
 </style>
 
 
@@ -304,6 +359,11 @@
           top: 2px;
         }
       }
+    }
+
+    .video-preview {
+      width: 100%;
+      height: 460px;
     }
   }
 
