@@ -83,7 +83,7 @@
         <p>{{item.filename}}</p>
       </div>
       <el-divider v-if="imgList.length !== 0"><i class="el-icon-picture-outline"></i></el-divider>
-      <el-image @click="showOriginPic(imgList)" v-for="(item,index) in imgList" :key="index" style="height:230px;"
+      <el-image @click="showOriginPic(imgList,index)" v-for="(item,index) in imgList" :key="index" style="height:230px;"
         fit="contain" :src="item.url">
         <div slot="placeholder" class="image-slot">
           <i class="el-icon-loading"></i>加载中...</span>
@@ -417,11 +417,12 @@
         this.drawerTitleName = param.gallery_name
         ipc.send('test-get-moive', param.gallery_local)
       },
-      showOriginPic(param) {
+      showOriginPic(param,index) {
         const that = this
         setTimeout(() => {
           const viewer = that.$el.querySelector('.images').$viewer
           viewer.show()
+          viewer.view(index)
         }, 200)
       },
       // 展示图集小类更多图片预览
