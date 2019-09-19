@@ -129,7 +129,7 @@
       })
       this.fetchData()
     },
-    mounted: function () {
+    mounted: function() {
       this.$nextTick(() => {
         // Register IPC Renderer event handles once for this control
         // 监听主进程的返回
@@ -194,16 +194,16 @@
         combineGirlId: '',
         // 合并图集的下拉框数据
         girlCombineLists: [{
-            label: '福利姬',
-            options: []
-          }, {
-            label: '图集',
-            options: []
-          },
-          {
-            label: '其他',
-            options: []
-          }
+          label: '福利姬',
+          options: []
+        }, {
+          label: '图集',
+          options: []
+        },
+        {
+          label: '其他',
+          options: []
+        }
         ],
         drawer: false,
         drawerTitleName: '',
@@ -223,7 +223,7 @@
               url: param.url
             }
           })
-          dp.on('fullscreen', function () {
+          dp.on('fullscreen', function() {
             dp.fullScreen.cancel('browser')
           })
         }, 200)
@@ -417,7 +417,7 @@
         this.drawerTitleName = param.gallery_name
         ipc.send('test-get-moive', param.gallery_local)
       },
-      showOriginPic(param,index) {
+      showOriginPic(param, index) {
         const that = this
         setTimeout(() => {
           const viewer = that.$el.querySelector('.images').$viewer

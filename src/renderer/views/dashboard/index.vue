@@ -163,8 +163,8 @@
         this.gallery_count = res.data.gallery_count
         this.gallery_item_count = res.data.gallery_item_count
         this.img_total_count = res.data.img_total_count
-        this.img_total_size = res.data.img_total_size ? (parseFloat(res.data.img_total_size) / 1048576).toFixed(2) :
-          0
+        this.img_total_size = res.data.img_total_size ? (parseFloat(res.data.img_total_size) / 1048576).toFixed(2)
+          : 0
       }).catch(() => {
 
       })
@@ -183,7 +183,7 @@
     //   _this.nowTime = moment(new Date()).format("HH:mm:ss") // 修改数据date
     // }, 1000)
     // },
-    mounted: function () {
+    mounted: function() {
       this.animate_visible = true
       this.$nextTick(() => {
         // Register IPC Renderer event handles once for this control
@@ -248,7 +248,7 @@
               url: param.url
             }
           })
-          dp.on('fullscreen', function () {
+          dp.on('fullscreen', function() {
             dp.fullScreen.cancel('browser')
           })
         }, 200)
@@ -338,7 +338,7 @@
         this.drawerTitleName = param.gallery_name
         ipc.send('test-get-moive', param.gallery_local)
       },
-      showOriginPic(param,index) {
+      showOriginPic(param, index) {
         const that = this
         setTimeout(() => {
           const viewer = that.$el.querySelector('.images').$viewer

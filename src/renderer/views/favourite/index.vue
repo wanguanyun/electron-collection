@@ -87,7 +87,7 @@
         'app_module'
       ])
     },
-    mounted: function () {
+    mounted: function() {
       this.$nextTick(() => {
         // Register IPC Renderer event handles once for this control
         // 监听主进程的返回
@@ -141,12 +141,12 @@
               url: param.url
             }
           })
-          dp.on('fullscreen', function () {
+          dp.on('fullscreen', function() {
             dp.fullScreen.cancel('browser')
           })
         }, 200)
       },
-      showOriginPic(param,index) {
+      showOriginPic(param, index) {
         const that = this
         // this.originPic = param
         // this.originPic.push(param)
