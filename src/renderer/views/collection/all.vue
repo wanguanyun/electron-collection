@@ -3,7 +3,7 @@
     <el-row type="flex" justify="left">
       <el-form :inline="true" size="mini">
         <el-form-item label="检索">
-          <el-input v-model="queryname" clearable placeholder="标题 / 标签"></el-input>
+          <el-input v-model="queryname" v-on:keyup.enter.native="handleSearch" clearable placeholder="标题 / 标签"></el-input>
         </el-form-item>
         <el-form-item label="展示排序">
           <el-select v-model="querysort" placeholder="展示排序">

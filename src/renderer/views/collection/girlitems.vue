@@ -6,7 +6,7 @@
           <el-button type="warning" @click="goback" icon="el-icon-back">{{girlInfo.gallery_name}}</el-button>
         </el-form-item>
         <el-form-item label="检索">
-          <el-input v-model="formInline.queryname" clearable placeholder="标题 / 标签"></el-input>
+          <el-input v-model="formInline.queryname" v-on:keyup.enter.native="handleSearch" clearable placeholder="标题 / 标签"></el-input>
         </el-form-item>
         <el-form-item label="展示排序">
           <el-select v-model="formInline.querysort" placeholder="展示排序">
