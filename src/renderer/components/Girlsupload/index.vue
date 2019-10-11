@@ -152,7 +152,13 @@
         // 监听主进程的返回
         ipc.on('local-address-config-reply', (e, args) => {
           const re = new RegExp('\\\\', 'g')
-          this.addGirlForm.localAddress = args[0].replace(re, '\\\\\\\\') || ''
+          if(this.girlDataType === 2){
+            this.addGirlForm.title = `${args.galleryName} ${args.imgCount !== 0?args.imgCount+'p':''}${args.videoCount!==0?'+'+args.videoCount+'v':''}`
+          }
+          if(this.girlDataType === 1){
+            this.addGirlForm.title = args.galleryName
+          }
+          this.addGirlForm.localAddress = args.filePath[0].replace(re, '\\\\\\\\') || ''
         })
       })
     },
@@ -245,7 +251,7 @@
       },
       // 配置本地文件地址
       localAddressConfig() {
-        ipc.send('local-address-config')
+        ipc.send('local-address-config',this.girlDataType)
       },
       // 新增小姐姐 提交
       handleAdd(galleryId) {

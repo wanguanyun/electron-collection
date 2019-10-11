@@ -156,6 +156,7 @@ ipcMain.on('test-get-moive', (event, arg) => {
 })
 
 ipcMain.on('local-address-config', (event, arg) => {
+  //arg:1 图集大类  2 图集小类
   dialog.showOpenDialog({
     properties: ['openDirectory']
   }, (filePath) => {
@@ -164,8 +165,19 @@ ipcMain.on('local-address-config', (event, arg) => {
       console.log('No file selected')
       return
     }
-    console.log(filePath)
-    event.sender.send('local-address-config-reply', filePath)
+    let fileInfoLists = (arg===2?getFiles.getFileInfo(filePath[0]):[])
+    let imgCount = 0
+    let videoCount = 0
+    for(let item of fileInfoLists){
+      if(item.type === 'img'){
+        imgCount += 1
+      }
+      if(item.type === 'video'){
+        videoCount += 1
+      }
+    }
+    let galleryName = filePath[0].slice(filePath[0].lastIndexOf("\\")+1,filePath[0].length)
+    event.sender.send('local-address-config-reply', {filePath,imgCount,videoCount,galleryName})
   })
 })
 
@@ -194,6 +206,39 @@ app.on('ready', () => {
 })
  */
 
+function readFileInfo(path,filesList){
+  var files
+  try {
+    files = fs.readdirSync(path)
+  } catch (err) {
+    return
+  }
+  files.map(itm => {
+    var stat = fs.statSync(path + '/' + itm)
+    if (stat.isDirectory()) {
+      // 递归读取文件
+      readFileInfo(path + '/' + itm + '/',filesList)
+    } else {
+      // 只显示 文件大小<2MB的图片  且每个文件夹最多显示40张图片
+      if (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpg' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'png' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'jpeg') {
+        var obj = {} // 定义一个对象存放文件的路径和名字
+        obj.path = path // 路径
+        obj.filename = itm // 名字
+        obj.type = 'img'
+        filesList.push(obj)
+      }
+      if (itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'mp4' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'avi' || itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'mov' ||
+        itm.split('.')[itm.split('.').length - 1].toLowerCase() === 'rmvb') {
+        var obj = {} // 定义一个对象存放文件的路径和名字
+        obj.path = path // 路径
+        obj.filename = itm // 名字
+        obj.type = 'video'
+        filesList.push(obj)
+      }
+    }
+  })
+}
+
 function readFileList(path, filesList) {
   let imgCount = 0
   var files
@@ -202,13 +247,6 @@ function readFileList(path, filesList) {
   } catch (err) {
     return
   }
-  // fs.readFile('E:\\my_collection\\由衣酱(小唯)\\粉红私服\\1 (6).jpg',(err,data)=>{
-  //   if(err){
-  //     console.log(err)
-  //   }else{
-  //     console.log(data.toString('base64'))
-  //   }
-  // })
   files.map(itm => {
     var stat = fs.statSync(path + '/' + itm)
     if (stat.isDirectory()) {
@@ -232,22 +270,6 @@ function readFileList(path, filesList) {
         obj.type = 'video'
         filesList.push(obj)
       }
-      // console.log(nativeImage.createFromPath((path+"\\"+itm).replace(/\\/g,"\\\\")))
-      // new Promise((resolve,reject) => {
-      //   fs.readFileSync(path + "/" + itm + "/",(err,data)=>{
-      //     if(err){
-      //       console.log(err)
-      //     }else{
-      //       obj.fileData = data.toString()
-      //       console.log(data.toString())
-      //     }
-      //     resolve()
-      //   })
-      // }).then(()=>{
-      //   filesList.push(obj);
-      // }).catch(err =>{
-      //   console.log(err)
-      // })
     }
   })
 }
@@ -256,6 +278,11 @@ var getFiles = {
   getFileList: function(path) {
     var filesList = []
     readFileList(path, filesList)
+    return filesList
+  },
+  getFileInfo:function(path) {
+    var filesList = []
+    readFileInfo(path,filesList)
     return filesList
   }
 }
