@@ -59,7 +59,7 @@
   },
   "dependencies": {
     "animate.css": "^3.7.0",
-    "axios": "0.17.1",
+    "axios": "0.21.1",
     "dplayer": "^1.25.0",
     "element-ui": "2.11.0",
     "js-cookie": "^2.2.0",
