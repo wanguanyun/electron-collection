@@ -68,7 +68,7 @@
     "nprogress": "0.2.0",
     "resolve-url-loader": "^3.1.0",
     "roughjs": "^3.0.0",
-    "three": "^0.106.2",
+    "three": "^0.137.0",
     "v-viewer": "^1.4.0",
     "vue": "2.6.10",
     "vue-clipboard2": "^0.3.0",
